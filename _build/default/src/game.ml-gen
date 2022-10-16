@@ -1,0 +1,2 @@
+(** @canonical Game.Board *)
+module Board = Game__Board
