@@ -1,9 +1,9 @@
-# dune build
+# dune exec test/main.exe
 # OCAMLPARAM: unset
 # Shared cache: disabled
-# Workspace root: /Users/sunny/cs3110-final-project
+# Workspace root: /home/emma/3110/cs3110-final-project
 # Auto-detected concurrency: 8
-$ /Users/sunny/.opam/cs3110-2022fa/bin/ocamlc.opt -config > /var/folders/yb/8tylvnn92b126c0hx12197200000gn/T/dune_d64954_output
+$ /home/emma/.opam/cs3110-2022fa/bin/ocamlc.opt -config > /tmp/dune_d48665_output
 # Dune context:
 #  { name = "default"
 #  ; kind = "default"
@@ -13,75 +13,75 @@ $ /Users/sunny/.opam/cs3110-2022fa/bin/ocamlc.opt -config > /var/folders/yb/8tyl
 #  ; fdo_target_exe = None
 #  ; build_dir = "default"
 #  ; toplevel_path =
-#      Some External "/Users/sunny/.opam/cs3110-2022fa/lib/toplevel"
-#  ; ocaml_bin = External "/Users/sunny/.opam/cs3110-2022fa/bin"
-#  ; ocaml = Ok External "/Users/sunny/.opam/cs3110-2022fa/bin/ocaml"
-#  ; ocamlc = External "/Users/sunny/.opam/cs3110-2022fa/bin/ocamlc.opt"
-#  ; ocamlopt = Ok External "/Users/sunny/.opam/cs3110-2022fa/bin/ocamlopt.opt"
-#  ; ocamldep = Ok External "/Users/sunny/.opam/cs3110-2022fa/bin/ocamldep.opt"
+#      Some External "/home/emma/.opam/cs3110-2022fa/lib/toplevel"
+#  ; ocaml_bin = External "/home/emma/.opam/cs3110-2022fa/bin"
+#  ; ocaml = Ok External "/home/emma/.opam/cs3110-2022fa/bin/ocaml"
+#  ; ocamlc = External "/home/emma/.opam/cs3110-2022fa/bin/ocamlc.opt"
+#  ; ocamlopt = Ok External "/home/emma/.opam/cs3110-2022fa/bin/ocamlopt.opt"
+#  ; ocamldep = Ok External "/home/emma/.opam/cs3110-2022fa/bin/ocamldep.opt"
 #  ; ocamlmklib =
-#      Ok External "/Users/sunny/.opam/cs3110-2022fa/bin/ocamlmklib.opt"
+#      Ok External "/home/emma/.opam/cs3110-2022fa/bin/ocamlmklib.opt"
 #  ; env =
 #      map
-#        { "DUNE_OCAML_HARDCODED" : "/Users/sunny/.opam/cs3110-2022fa/lib"
-#        ; "DUNE_OCAML_STDLIB" : "/Users/sunny/.opam/cs3110-2022fa/lib/ocaml"
-#        ; "DUNE_SOURCEROOT" : "/Users/sunny/cs3110-final-project"
-#        ; "INSIDE_DUNE" : "/Users/sunny/cs3110-final-project/_build/default"
-#        ; "MANPATH" :
-#            "/Users/sunny/cs3110-final-project/_build/install/default/bin"
+#        { "DUNE_OCAML_HARDCODED" : "/home/emma/.opam/cs3110-2022fa/lib"
+#        ; "DUNE_OCAML_STDLIB" : "/home/emma/.opam/cs3110-2022fa/lib/ocaml"
+#        ; "DUNE_SOURCEROOT" : "/home/emma/3110/cs3110-final-project"
+#        ; "INSIDE_DUNE" :
+#            "/home/emma/3110/cs3110-final-project/_build/default"
 #        ; "OCAMLFIND_IGNORE_DUPS_IN" :
-#            "/Users/sunny/cs3110-final-project/_build/install/default/lib"
+#            "/home/emma/3110/cs3110-final-project/_build/install/default/lib"
 #        ; "OCAMLPATH" :
-#            "/Users/sunny/cs3110-final-project/_build/install/default/lib"
+#            "/home/emma/3110/cs3110-final-project/_build/install/default/lib"
 #        ; "OCAMLTOP_INCLUDE_PATH" :
-#            "/Users/sunny/cs3110-final-project/_build/install/default/lib/toplevel"
+#            "/home/emma/3110/cs3110-final-project/_build/install/default/lib/toplevel"
 #        ; "OCAML_COLOR" : "always"
 #        ; "OPAMCOLOR" : "always"
 #        }
-#  ; findlib_paths = [ External "/Users/sunny/.opam/cs3110-2022fa/lib" ]
+#  ; findlib_paths = [ External "/home/emma/.opam/cs3110-2022fa/lib" ]
 #  ; arch_sixtyfour = true
 #  ; natdynlink_supported = true
 #  ; supports_shared_libraries = true
 #  ; ocaml_config =
 #      { version = "4.14.0"
-#      ; standard_library_default =
-#          "/Users/sunny/.opam/cs3110-2022fa/lib/ocaml"
-#      ; standard_library = "/Users/sunny/.opam/cs3110-2022fa/lib/ocaml"
+#      ; standard_library_default = "/home/emma/.opam/cs3110-2022fa/lib/ocaml"
+#      ; standard_library = "/home/emma/.opam/cs3110-2022fa/lib/ocaml"
 #      ; standard_runtime = "the_standard_runtime_variable_was_deleted"
 #      ; ccomp_type = "cc"
-#      ; c_compiler = "cc"
+#      ; c_compiler = "gcc"
 #      ; ocamlc_cflags =
-#          [ "-O2"; "-fno-strict-aliasing"; "-fwrapv"; "-pthread" ]
+#          [ "-O2"; "-fno-strict-aliasing"; "-fwrapv"; "-pthread"; "-fPIC" ]
 #      ; ocamlc_cppflags = [ "-D_FILE_OFFSET_BITS=64" ]
 #      ; ocamlopt_cflags =
-#          [ "-O2"; "-fno-strict-aliasing"; "-fwrapv"; "-pthread" ]
+#          [ "-O2"; "-fno-strict-aliasing"; "-fwrapv"; "-pthread"; "-fPIC" ]
 #      ; ocamlopt_cppflags = [ "-D_FILE_OFFSET_BITS=64" ]
 #      ; bytecomp_c_compiler =
-#          [ "cc"
+#          [ "gcc"
 #          ; "-O2"
 #          ; "-fno-strict-aliasing"
 #          ; "-fwrapv"
 #          ; "-pthread"
+#          ; "-fPIC"
 #          ; "-D_FILE_OFFSET_BITS=64"
 #          ]
-#      ; bytecomp_c_libraries = [ "-lm"; "-lpthread" ]
+#      ; bytecomp_c_libraries = [ "-lm"; "-ldl"; "-lpthread" ]
 #      ; native_c_compiler =
-#          [ "cc"
+#          [ "gcc"
 #          ; "-O2"
 #          ; "-fno-strict-aliasing"
 #          ; "-fwrapv"
 #          ; "-pthread"
+#          ; "-fPIC"
 #          ; "-D_FILE_OFFSET_BITS=64"
 #          ]
-#      ; native_c_libraries = [ "-lm" ]
+#      ; native_c_libraries = [ "-lm"; "-ldl" ]
 #      ; native_pack_linker = [ "ld"; "-r"; "-o" ]
 #      ; cc_profile = []
 #      ; architecture = "amd64"
 #      ; model = "default"
 #      ; int_size = 63
 #      ; word_size = 64
-#      ; system = "macosx"
-#      ; asm = [ "cc"; "-c"; "-Wno-trigraphs" ]
+#      ; system = "linux"
+#      ; asm = [ "as" ]
 #      ; asm_cfi_supported = true
 #      ; with_frame_pointers = false
 #      ; ext_exe = ""
@@ -92,8 +92,8 @@ $ /Users/sunny/.opam/cs3110-2022fa/bin/ocamlc.opt -config > /var/folders/yb/8tyl
 #      ; os_type = "Unix"
 #      ; default_executable_name = "a.out"
 #      ; systhread_supported = true
-#      ; host = "x86_64-apple-darwin21.6.0"
-#      ; target = "x86_64-apple-darwin21.6.0"
+#      ; host = "x86_64-pc-linux-gnu"
+#      ; target = "x86_64-pc-linux-gnu"
 #      ; profiling = false
 #      ; flambda = false
 #      ; spacetime = false
@@ -113,16 +113,5 @@ $ /Users/sunny/.opam/cs3110-2022fa/bin/ocamlc.opt -config > /var/folders/yb/8tyl
 #      ; windows_unicode = false
 #      }
 #  }
-$ (cd _build/default && /Users/sunny/.opam/cs3110-2022fa/bin/ocamlc.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -w -49 -nopervasives -nostdlib -g -bin-annot -I src/.game.objs/byte -no-alias-deps -opaque -o src/.game.objs/byte/game.cmo -c -impl src/game.ml-gen)
-$ (cd _build/default && /Users/sunny/.opam/cs3110-2022fa/bin/ocamlc.opt -w +a-4-6-7-9-27-29-30-32..42-44-45-48-50-60-66..70 -warn-error -a+31 -g -bin-annot -I test/.main.eobjs/byte -I /Users/sunny/.opam/cs3110-2022fa/lib/ounit2 -I /Users/sunny/.opam/cs3110-2022fa/lib/ounit2/advanced -I /Users/sunny/.opam/cs3110-2022fa/lib/seq -I /Users/sunny/.opam/cs3110-2022fa/lib/stdlib-shims -no-alias-deps -opaque -o test/.main.eobjs/byte/dune__exe__Main.cmi -c -intf test/main.mli)
-$ (cd _build/default && /Users/sunny/.opam/cs3110-2022fa/bin/ocamldep.opt -modules -intf src/board.mli) > _build/default/src/.game.objs/board.mli.d
-$ (cd _build/default && /Users/sunny/.opam/cs3110-2022fa/bin/ocamldep.opt -modules -impl src/board.ml) > _build/default/src/.game.objs/board.ml.d
-> File "src/board.ml", line 1, characters 15-16:
-> 1 | type m = {color=string; number=int}
->                    ^
-> Error: Syntax error
-[2]
-$ (cd _build/default && /Users/sunny/.opam/cs3110-2022fa/bin/ocamlc.opt -w +a-4-6-7-9-27-29-30-32..42-44-45-48-50-60-66..70 -warn-error -a+31 -g -bin-annot -I src/.game.objs/byte -no-alias-deps -opaque -open Game -o src/.game.objs/byte/game__Board.cmi -c -intf src/board.mli)
-$ (cd _build/default && /Users/sunny/.opam/cs3110-2022fa/bin/ocamlopt.opt -w +a-4-6-7-9-27-29-30-32..42-44-45-48-50-60-66..70 -warn-error -a+31 -g -I test/.main.eobjs/byte -I test/.main.eobjs/native -I /Users/sunny/.opam/cs3110-2022fa/lib/ounit2 -I /Users/sunny/.opam/cs3110-2022fa/lib/ounit2/advanced -I /Users/sunny/.opam/cs3110-2022fa/lib/seq -I /Users/sunny/.opam/cs3110-2022fa/lib/stdlib-shims -intf-suffix .ml -no-alias-deps -opaque -o test/.main.eobjs/native/dune__exe__Main.cmx -c -impl test/main.ml)
-$ (cd _build/default && /Users/sunny/.opam/cs3110-2022fa/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -w -49 -nopervasives -nostdlib -g -I src/.game.objs/byte -I src/.game.objs/native -intf-suffix .ml-gen -no-alias-deps -opaque -o src/.game.objs/native/game.cmx -c -impl src/game.ml-gen)
-$ (cd _build/default && /Users/sunny/.opam/cs3110-2022fa/bin/ocamlopt.opt -w +a-4-6-7-9-27-29-30-32..42-44-45-48-50-60-66..70 -warn-error -a+31 -g -o test/main.exe /Users/sunny/.opam/cs3110-2022fa/lib/ocaml/unix.cmxa -I /Users/sunny/.opam/cs3110-2022fa/lib/ocaml -I /Users/sunny/.opam/cs3110-2022fa/lib/ocaml /Users/sunny/.opam/cs3110-2022fa/lib/stdlib-shims/stdlib_shims.cmxa /Users/sunny/.opam/cs3110-2022fa/lib/ounit2/advanced/oUnitAdvanced.cmxa /Users/sunny/.opam/cs3110-2022fa/lib/ounit2/oUnit.cmxa test/.main.eobjs/native/dune__exe__Main.cmx)
+$ (cd _build/default && /home/emma/.opam/cs3110-2022fa/bin/ocamlopt.opt -w +a-4-6-7-9-27-29-30-32..42-44-45-48-50-60-66..70 -warn-error -a+31 -g -I test/.main.eobjs/byte -I test/.main.eobjs/native -I /home/emma/.opam/cs3110-2022fa/lib/ANSITerminal -I /home/emma/.opam/cs3110-2022fa/lib/ounit2 -I /home/emma/.opam/cs3110-2022fa/lib/ounit2/advanced -I /home/emma/.opam/cs3110-2022fa/lib/seq -I /home/emma/.opam/cs3110-2022fa/lib/stdlib-shims -I /home/emma/.opam/cs3110-2022fa/lib/yojson -I src/.game.objs/byte -I src/.game.objs/native -intf-suffix .ml -no-alias-deps -opaque -o test/.main.eobjs/native/dune__exe__Main.cmx -c -impl test/main.ml)
+$ (cd _build/default && /home/emma/.opam/cs3110-2022fa/bin/ocamlopt.opt -w +a-4-6-7-9-27-29-30-32..42-44-45-48-50-60-66..70 -warn-error -a+31 -g -o test/main.exe /home/emma/.opam/cs3110-2022fa/lib/yojson/yojson.cmxa /home/emma/.opam/cs3110-2022fa/lib/ocaml/unix.cmxa -I /home/emma/.opam/cs3110-2022fa/lib/ocaml -I /home/emma/.opam/cs3110-2022fa/lib/ocaml /home/emma/.opam/cs3110-2022fa/lib/ANSITerminal/ANSITerminal.cmxa -I /home/emma/.opam/cs3110-2022fa/lib/ANSITerminal src/game.cmxa /home/emma/.opam/cs3110-2022fa/lib/stdlib-shims/stdlib_shims.cmxa /home/emma/.opam/cs3110-2022fa/lib/ounit2/advanced/oUnitAdvanced.cmxa /home/emma/.opam/cs3110-2022fa/lib/ounit2/oUnit.cmxa test/.main.eobjs/native/dune__exe__Main.cmx)

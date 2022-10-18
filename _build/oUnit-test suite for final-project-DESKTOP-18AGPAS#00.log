@@ -1,0 +1,132 @@
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Runner: processes
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Chooser: simple
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Configuration suite_name = "test suite for final-project"
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Configuration cache_filename = "/home/emma/3110/cs3110-final-project/_build/oUnit-$(suite_name).cache"
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Configuration run_gc_full_major = "true"
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Configuration display = "true"
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Configuration results_style_1_X = "false"
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Configuration testdata_dir = "/home/emma/3110/cs3110-final-project/data"
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Configuration health_check_interval = "1."
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Configuration verbose = "false"
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Configuration chooser = "simple"
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Configuration output_html_dir = "none"
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Configuration processes_kill_period = "5."
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Configuration runner = "processes"
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Configuration shards = "4"
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Configuration processes_grace_period = "5."
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Configuration log_encoding = "utf-8"
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Configuration output_junit_file = "none"
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Configuration ci = "false"
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Configuration output_file = "/home/emma/3110/cs3110-final-project/_build/oUnit-$(suite_name)-$(shard_id).log"
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Using 4 workers maximum.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Starting worker number DESKTOP-18AGPAS#01.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Worker DESKTOP-18AGPAS#01 started.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Starting worker number DESKTOP-18AGPAS#02.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Worker DESKTOP-18AGPAS#02 started.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Starting worker number DESKTOP-18AGPAS#03.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Worker DESKTOP-18AGPAS#03 started.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Starting worker number DESKTOP-18AGPAS#04.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Worker DESKTOP-18AGPAS#04 started.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: 4 tests running: test suite for final-project:3:6 players empty holes => center, test suite for final-project:2:optional players test, test suite for final-project:1:three players, explicit, test suite for final-project:0:one player, explicit.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#01 I: Start test test suite for final-project:0:one player, explicit.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#02 I: Start test test suite for final-project:1:three players, explicit.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#03 I: Start test test suite for final-project:2:optional players test.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: 4 tests running: test suite for final-project:3:6 players empty holes => center, test suite for final-project:2:optional players test, test suite for final-project:1:three players, explicit, test suite for final-project:0:one player, explicit.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#04 I: Start test test suite for final-project:3:6 players empty holes => center.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: 4 tests running: test suite for final-project:3:6 players empty holes => center, test suite for final-project:2:optional players test, test suite for final-project:1:three players, explicit, test suite for final-project:0:one player, explicit.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#01 I: Test test suite for final-project:0:one player, explicit is successful.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: 4 tests running: test suite for final-project:3:6 players empty holes => center, test suite for final-project:2:optional players test, test suite for final-project:1:three players, explicit, test suite for final-project:0:one player, explicit.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#01 I: End test test suite for final-project:0:one player, explicit.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: 4 tests running: test suite for final-project:3:6 players empty holes => center, test suite for final-project:2:optional players test, test suite for final-project:1:three players, explicit, test suite for final-project:0:one player, explicit.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: 4 tests running: test suite for final-project:4:5 players empty holes => center and green, test suite for final-project:3:6 players empty holes => center, test suite for final-project:2:optional players test, test suite for final-project:1:three players, explicit.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#01 I: Start test test suite for final-project:4:5 players empty holes => center and green.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: 4 tests running: test suite for final-project:4:5 players empty holes => center and green, test suite for final-project:3:6 players empty holes => center, test suite for final-project:2:optional players test, test suite for final-project:1:three players, explicit.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#03 I: Test test suite for final-project:2:optional players test is successful.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: 4 tests running: test suite for final-project:4:5 players empty holes => center and green, test suite for final-project:3:6 players empty holes => center, test suite for final-project:2:optional players test, test suite for final-project:1:three players, explicit.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#03 I: End test test suite for final-project:2:optional players test.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: 4 tests running: test suite for final-project:4:5 players empty holes => center and green, test suite for final-project:3:6 players empty holes => center, test suite for final-project:2:optional players test, test suite for final-project:1:three players, explicit.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: 4 tests running: test suite for final-project:5:(13,17) is red1, test suite for final-project:4:5 players empty holes => center and green, test suite for final-project:3:6 players empty holes => center, test suite for final-project:1:three players, explicit.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#03 I: Start test test suite for final-project:5:(13,17) is red1.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: 4 tests running: test suite for final-project:5:(13,17) is red1, test suite for final-project:4:5 players empty holes => center and green, test suite for final-project:3:6 players empty holes => center, test suite for final-project:1:three players, explicit.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#02 I: Test test suite for final-project:1:three players, explicit is successful.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: 4 tests running: test suite for final-project:5:(13,17) is red1, test suite for final-project:4:5 players empty holes => center and green, test suite for final-project:3:6 players empty holes => center, test suite for final-project:1:three players, explicit.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#02 I: End test test suite for final-project:1:three players, explicit.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: 4 tests running: test suite for final-project:5:(13,17) is red1, test suite for final-project:4:5 players empty holes => center and green, test suite for final-project:3:6 players empty holes => center, test suite for final-project:1:three players, explicit.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: 4 tests running: test suite for final-project:6:(10,4) is black7 if 2 players, test suite for final-project:5:(13,17) is red1, test suite for final-project:4:5 players empty holes => center and green, test suite for final-project:3:6 players empty holes => center.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#02 I: Start test test suite for final-project:6:(10,4) is black7 if 2 players.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: 4 tests running: test suite for final-project:6:(10,4) is black7 if 2 players, test suite for final-project:5:(13,17) is red1, test suite for final-project:4:5 players empty holes => center and green, test suite for final-project:3:6 players empty holes => center.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#01 I: Test test suite for final-project:4:5 players empty holes => center and green is successful.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#03 I: Test test suite for final-project:5:(13,17) is red1 is successful.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: 4 tests running: test suite for final-project:6:(10,4) is black7 if 2 players, test suite for final-project:5:(13,17) is red1, test suite for final-project:4:5 players empty holes => center and green, test suite for final-project:3:6 players empty holes => center.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#01 I: End test test suite for final-project:4:5 players empty holes => center and green.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#03 I: End test test suite for final-project:5:(13,17) is red1.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: 4 tests running: test suite for final-project:6:(10,4) is black7 if 2 players, test suite for final-project:5:(13,17) is red1, test suite for final-project:4:5 players empty holes => center and green, test suite for final-project:3:6 players empty holes => center.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: 4 tests running: test suite for final-project:8:(13, 7), test suite for final-project:7:(10,4) is None if 1 player, test suite for final-project:6:(10,4) is black7 if 2 players, test suite for final-project:3:6 players empty holes => center.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#03 I: Start test test suite for final-project:7:(10,4) is None if 1 player.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: 4 tests running: test suite for final-project:8:(13, 7), test suite for final-project:7:(10,4) is None if 1 player, test suite for final-project:6:(10,4) is black7 if 2 players, test suite for final-project:3:6 players empty holes => center.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#04 I: Test test suite for final-project:3:6 players empty holes => center is successful.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#01 I: Start test test suite for final-project:8:(13, 7).
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: 4 tests running: test suite for final-project:8:(13, 7), test suite for final-project:7:(10,4) is None if 1 player, test suite for final-project:6:(10,4) is black7 if 2 players, test suite for final-project:3:6 players empty holes => center.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#04 I: End test test suite for final-project:3:6 players empty holes => center.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: 4 tests running: test suite for final-project:8:(13, 7), test suite for final-project:7:(10,4) is None if 1 player, test suite for final-project:6:(10,4) is black7 if 2 players, test suite for final-project:3:6 players empty holes => center.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Still 4 tests running : test suite for final-project:9:invalid coord for marble_in_hole, test suite for final-project:8:(13, 7), test suite for final-project:7:(10,4) is None if 1 player, test suite for final-project:6:(10,4) is black7 if 2 players.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: 4 tests running: test suite for final-project:9:invalid coord for marble_in_hole, test suite for final-project:8:(13, 7), test suite for final-project:7:(10,4) is None if 1 player, test suite for final-project:6:(10,4) is black7 if 2 players.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#02 I: Test test suite for final-project:6:(10,4) is black7 if 2 players is successful.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#04 I: Start test test suite for final-project:9:invalid coord for marble_in_hole.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Still 4 tests running : test suite for final-project:9:invalid coord for marble_in_hole, test suite for final-project:8:(13, 7), test suite for final-project:7:(10,4) is None if 1 player, test suite for final-project:6:(10,4) is black7 if 2 players.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: 4 tests running: test suite for final-project:9:invalid coord for marble_in_hole, test suite for final-project:8:(13, 7), test suite for final-project:7:(10,4) is None if 1 player, test suite for final-project:6:(10,4) is black7 if 2 players.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#02 I: End test test suite for final-project:6:(10,4) is black7 if 2 players.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Still 4 tests running : test suite for final-project:9:invalid coord for marble_in_hole, test suite for final-project:8:(13, 7), test suite for final-project:7:(10,4) is None if 1 player, test suite for final-project:6:(10,4) is black7 if 2 players.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: 4 tests running: test suite for final-project:9:invalid coord for marble_in_hole, test suite for final-project:8:(13, 7), test suite for final-project:7:(10,4) is None if 1 player, test suite for final-project:6:(10,4) is black7 if 2 players.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Still 3 tests running : test suite for final-project:9:invalid coord for marble_in_hole, test suite for final-project:8:(13, 7), test suite for final-project:7:(10,4) is None if 1 player.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: 3 tests running: test suite for final-project:9:invalid coord for marble_in_hole, test suite for final-project:8:(13, 7), test suite for final-project:7:(10,4) is None if 1 player.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#03 I: Test test suite for final-project:7:(10,4) is None if 1 player is successful.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#01 I: Test test suite for final-project:8:(13, 7) is successful.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Still 3 tests running : test suite for final-project:9:invalid coord for marble_in_hole, test suite for final-project:8:(13, 7), test suite for final-project:7:(10,4) is None if 1 player.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: 3 tests running: test suite for final-project:9:invalid coord for marble_in_hole, test suite for final-project:8:(13, 7), test suite for final-project:7:(10,4) is None if 1 player.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#03 I: End test test suite for final-project:7:(10,4) is None if 1 player.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#01 I: End test test suite for final-project:8:(13, 7).
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Still 3 tests running : test suite for final-project:9:invalid coord for marble_in_hole, test suite for final-project:8:(13, 7), test suite for final-project:7:(10,4) is None if 1 player.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: 3 tests running: test suite for final-project:9:invalid coord for marble_in_hole, test suite for final-project:8:(13, 7), test suite for final-project:7:(10,4) is None if 1 player.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Still 1 tests running : test suite for final-project:9:invalid coord for marble_in_hole.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: 1 tests running: test suite for final-project:9:invalid coord for marble_in_hole.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#04 I: Test test suite for final-project:9:invalid coord for marble_in_hole is successful.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Still 1 tests running : test suite for final-project:9:invalid coord for marble_in_hole.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: 1 tests running: test suite for final-project:9:invalid coord for marble_in_hole.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#04 I: End test test suite for final-project:9:invalid coord for marble_in_hole.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Still 1 tests running : test suite for final-project:9:invalid coord for marble_in_hole.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: 1 tests running: test suite for final-project:9:invalid coord for marble_in_hole.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: 0 tests running: .
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Worker DESKTOP-18AGPAS#02 has ended.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Worker DESKTOP-18AGPAS#03 has ended.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Worker DESKTOP-18AGPAS#01 has ended.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Worker DESKTOP-18AGPAS#04 has ended.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Used 4 worker during test execution.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Run 3 tests with shard DESKTOP-18AGPAS#03.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Run 2 tests with shard DESKTOP-18AGPAS#02.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Run 2 tests with shard DESKTOP-18AGPAS#04.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Run 3 tests with shard DESKTOP-18AGPAS#01.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Check health of shard DESKTOP-18AGPAS#03, 4 times.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Check health of shard DESKTOP-18AGPAS#02, 7 times.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Check health of shard DESKTOP-18AGPAS#04, 1 times.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Check health of shard DESKTOP-18AGPAS#01, 4 times.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: ==============
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Summary:
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Test test suite for final-project:9:invalid coord for marble_in_hole is successful.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Test test suite for final-project:8:(13, 7) is successful.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Test test suite for final-project:7:(10,4) is None if 1 player is successful.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Test test suite for final-project:6:(10,4) is black7 if 2 players is successful.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Test test suite for final-project:3:6 players empty holes => center is successful.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Test test suite for final-project:5:(13,17) is red1 is successful.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Test test suite for final-project:4:5 players empty holes => center and green is successful.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Test test suite for final-project:1:three players, explicit is successful.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Test test suite for final-project:2:optional players test is successful.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Test test suite for final-project:0:one player, explicit is successful.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Ran: 10 tests in: 0.11 seconds.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Cases: 10.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Tried: 10.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Errors: 0.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Failures: 0.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Skip: 0.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Todo: 0.
+2022-10-18T01:52:28+00:00 DESKTOP-18AGPAS#00 I: Timeout: 0.

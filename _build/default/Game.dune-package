@@ -27,6 +27,7 @@
  (archives (byte game.cma) (native game.cmxa))
  (plugins (byte game.cma) (native game.cmxs))
  (native_archives game.a)
+ (requires yojson ANSITerminal)
  (main_module_name Game)
  (modes byte native)
  (modules
