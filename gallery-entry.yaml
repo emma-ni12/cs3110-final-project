@@ -1,0 +1,27 @@
+---
+# Members of your group.
+group:
+  - name: Emma Ni
+    netid: en257
+  - name: Sunny Sun
+    netid: xs275
+  - name: Ellyn Hu
+    netid: eyh29
+# Your PM.
+pm:
+  name: Theodore Klausner
+  netid: tjk223
+# Set to false if you don't want your gallery entry to be public.
+publish: false
+# Pithy title
+title: "Chinese (Caml) Checkers"
+# OK if this is a Cornell Github link, but public gallery viewers won't be able to see it.
+git-repo: "https://github.com/emma-ni12/cs3110-final-project"
+# If you have no demo screencast, replace the url string with an empty string ""
+demo-video-url: ""
+# Write a short, attention-grabbing description of your project.
+desc: >
+  Our project is an interactive multiplayer terminal version of the board game 
+  Chinese Checkers. It supports turn-based gameplay for up to 6 players. The 
+  terminal displays the board any time a marble is moved, and players move 
+  marbles by typing commands into the terminal.
