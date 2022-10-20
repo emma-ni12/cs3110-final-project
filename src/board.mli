@@ -16,6 +16,10 @@ exception BadCoord of (int * int)
 (** Raised when an invalid coordinate is encountered. It carries the invalid
     coordinate. *)
 
+exception BadMarble
+(** Raised when an invalid marble id is encountered, i.e. a color not included
+    in [red, black, yellow, blue, white, green] or a number >0 or >10. *)
+
 val init_board : int -> t
 (** [init_board a] is the initial state of the board with [a] number of players.
     In that state the board is initialized with 10 marbles for each player in
@@ -38,5 +42,13 @@ val marble_in_hole : t -> int * int -> m option
     result is [None]. Raises [BadCoord coord] if [coord] is not a valid
     coordinate for a hole on the board.*)
 
-val string_of_board : t -> int -> int -> string
-(** INCOMPLETE SPEC *)
+val coord_of_marble : t -> m -> int * int
+(** [coord_of_marble b m] is the coordinate of the marble [m] on the board [b]. *)
+
+val string_of_board : t -> string
+(** [string_of_board b] is the string representation of the board [b]. *)
+
+val edit_board_at_coord : t -> int * int -> m option -> t
+(** [edit_board_at_coord b coord m] is the board [b] with the hole at coordinate
+    [coord] containing [m], which can either be [None] (the hole is now empty),
+    or [Some marble]. *)

@@ -1,6 +1,7 @@
 open OUnit2
 open Game
 open Board
+open State
 
 (** printers go here *)
 
@@ -249,11 +250,42 @@ let board_tests =
       assert_raises
         (BadCoord (1, 1))
         (fun () -> marble_in_hole (init_board 1) (1, 1)) );
-    ( "print board" >:: fun _ ->
-      assert_equal "hi"
-        (string_of_board (init_board 1) 1 1)
-        ~printer:(fun x -> x) );
   ]
 
-let suite = "test suite for final-project" >::: List.flatten [ board_tests ]
+let state_of_result result =
+  match result with
+  | Legal st -> st
+  | Illegal st -> st
+
+let state_tests =
+  let initial_state_2 = init_state (init_board 2) 2 in
+  let move_red7_RU = state_of_result (move 7 "RU" initial_state_2) in
+  [
+    ( "2P initial current board" >:: fun _ ->
+      assert_equal
+        (string_of_board (init_board 2))
+        (string_of_board (current_board initial_state_2))
+        ~printer:Fun.id );
+    ( "2P initial current player" >:: fun _ ->
+      assert_equal "red" (current_player initial_state_2) );
+    ( "2P initial number of players" >:: fun _ ->
+      assert_equal 2 (num_players initial_state_2) );
+    ( "red7 now in (11,13)" >:: fun _ ->
+      assert_equal
+        (Some { color = "red"; number = 7 })
+        (marble_in_hole (current_board move_red7_RU) (11, 13))
+        ~printer:string_of_marble_option );
+    ( "(10, 14) is empty" >:: fun _ ->
+      assert_equal None
+        (marble_in_hole (current_board move_red7_RU) (10, 14))
+        ~printer:string_of_marble_option );
+    ( "print board" >:: fun _ ->
+      assert_equal "hi"
+        (string_of_board (current_board move_red7_RU))
+        ~printer:Fun.id );
+  ]
+
+let suite =
+  "test suite for final-project" >::: List.flatten [ board_tests; state_tests ]
+
 let _ = run_test_tt_main suite

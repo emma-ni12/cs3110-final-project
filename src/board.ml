@@ -9,6 +9,7 @@ type t = ((int * int) * m option) list
 
 exception BadJson
 exception BadCoord of (int * int)
+exception BadMarble
 
 (** [un_yojson_list j] turns the list of coordinates from yojson to OCaml*)
 let un_yojson_list j =
@@ -36,6 +37,8 @@ let rec coord_list_to_marble_list lst color c =
   | (x, y) :: t ->
       ((x, y), Some { color; number = c })
       :: coord_list_to_marble_list t color (c + 1)
+
+(** can refactor/combine these functions*)
 
 (** [coord_list_to_hole_list lst color] take a coordinate and return a tuple
     with the coordinates and an empty hole*)
@@ -71,18 +74,6 @@ let create_holes p j =
   | "center", lst -> coord_list_to_hole_list lst "center"
   | _ -> raise BadJson
 
-(* let create_holes p j = match j with | "red", lst -> if p >= 1 then
-   coord_list_to_marble_list lst "red" 1 else coord_list_to_hole_list lst "red"
-   | "black", lst -> if p >= 2 then coord_list_to_marble_list lst "black" 1 else
-   coord_list_to_hole_list lst "black" | "yellow", lst -> if p >= 3 then
-   coord_list_to_marble_list lst "yellow" 1 else coord_list_to_hole_list lst
-   "yellow" | "blue", lst -> if p >= 4 then coord_list_to_marble_list lst "blue"
-   1 else coord_list_to_hole_list lst "blue" | "white", lst -> if p >= 5 then
-   coord_list_to_marble_list lst "white" 1 else coord_list_to_hole_list lst
-   "white" | "green", lst -> if p >= 6 then coord_list_to_marble_list lst
-   "green" 1 else coord_list_to_hole_list lst "green" | "center", lst ->
-   coord_list_to_hole_list lst "center" | _ -> raise BadJson *)
-
 let init_board players =
   let j =
     Yojson.Basic.from_file "./data/coords.json"
@@ -108,13 +99,27 @@ let rec empty_holes t =
 let marble_in_hole (t : t) (x, y) =
   try List.assoc (x, y) t with Not_found -> raise (BadCoord (x, y))
 
-let rec string_of_board t row col =
+let rec coord_of_marble (b : t) (m : m) =
+  match b with
+  | [] -> raise BadMarble
+  | ((x, y), m_opt) :: t ->
+      if m_opt = Some m then (x, y) else coord_of_marble t m
+
+let rec string_of_board_helper b row col =
   match (row, col) with
   | 18, _ -> ""
-  | r, 26 -> "\n \n" ^ string_of_board t (r + 1) 1
+  | r, 26 -> "\n \n" ^ string_of_board_helper b (r + 1) 1
   | r, c ->
-      (match marble_in_hole t (c, r) with
+      (match marble_in_hole b (c, r) with
       | exception BadCoord _ -> "    "
       | Some m -> "(" ^ string_of_number m.number ^ ")"
       | None -> "(  )")
-      ^ string_of_board t r (c + 1)
+      ^ string_of_board_helper b r (c + 1)
+
+let string_of_board b = string_of_board_helper b 1 1
+
+let edit_board_at_coord b (x, y) (new_marble : m option) =
+  List.map
+    (fun ((a, b), m) ->
+      if a = x && b = y then ((a, b), new_marble) else ((a, b), m))
+    b
