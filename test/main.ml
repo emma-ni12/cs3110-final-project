@@ -30,7 +30,7 @@ let init_marbles_test (name : string) (p : int)
     (expected_output : (int * int) list) =
   name >:: fun _ ->
   assert_equal expected_output ~cmp:cmp_pair_lists
-    (holes_with_marbles (init_board ~players:p ()))
+    (holes_with_marbles (init_board p))
     ~printer:string_of_int_pair_list
 
 (**[init_empty_holes_test name p expected_output] constructs a OUnit test named
@@ -40,17 +40,7 @@ let init_empty_holes_test (name : string) (p : int)
     (expected_output : (int * int) list) =
   name >:: fun _ ->
   assert_equal expected_output ~cmp:cmp_pair_lists
-    (empty_holes (init_board ~players:p ()))
-    ~printer:string_of_int_pair_list
-
-(**[init_marbles_optional_test name expected_output] constructs a OUnit test
-   named [name] that asserts the equality of [expected_output] with
-   [holes_with_marbles] for a board with no specified number of players.*)
-let init_marbles_optional_test (name : string)
-    (expected_output : (int * int) list) =
-  name >:: fun _ ->
-  assert_equal expected_output
-    (holes_with_marbles (init_board ()))
+    (empty_holes (init_board p))
     ~printer:string_of_int_pair_list
 
 (**[marble_in_hole_test name coord players expected_output] constructs a OUnit
@@ -60,7 +50,7 @@ let marble_in_hole_test (name : string) (coord : int * int) (players : int)
     (expected_output : m option) =
   name >:: fun _ ->
   assert_equal expected_output
-    (marble_in_hole (init_board ~players ()) coord)
+    (marble_in_hole (init_board players) coord)
     ~printer:string_of_marble_option
 
 let board_tests =
@@ -110,19 +100,6 @@ let board_tests =
         (3, 7);
         (5, 7);
         (4, 8);
-      ];
-    init_marbles_optional_test "optional players test"
-      [
-        (13, 17);
-        (12, 16);
-        (14, 16);
-        (11, 15);
-        (13, 15);
-        (15, 15);
-        (10, 14);
-        (12, 14);
-        (14, 14);
-        (16, 14);
       ];
     init_empty_holes_test "6 players empty holes => center" 6
       [
@@ -271,9 +248,11 @@ let board_tests =
     ( "invalid coord for marble_in_hole" >:: fun _ ->
       assert_raises
         (BadCoord (1, 1))
-        (fun () -> marble_in_hole (init_board ()) (1, 1)) )
-    (* ( "print board" >:: fun _ -> assert_equal "hi" (print_board (init_board
-       ())) ~printer:(fun x -> x) ); *);
+        (fun () -> marble_in_hole (init_board 1) (1, 1)) );
+    ( "print board" >:: fun _ ->
+      assert_equal "hi"
+        (string_of_board (init_board 1) 1 1)
+        ~printer:(fun x -> x) );
   ]
 
 let suite = "test suite for final-project" >::: List.flatten [ board_tests ]

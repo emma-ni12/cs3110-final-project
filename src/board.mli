@@ -16,7 +16,7 @@ exception BadCoord of (int * int)
 (** Raised when an invalid coordinate is encountered. It carries the invalid
     coordinate. *)
 
-val init_board : ?players:int -> unit -> t
+val init_board : int -> t
 (** [init_board a] is the initial state of the board with [a] number of players.
     In that state the baord is initialized with 10 marbles for each player in
     the corners of the star, starting from the bottom point. If there are
@@ -39,4 +39,5 @@ val marble_in_hole : t -> int * int -> m option
     result is [None]. Raises [BadCoord coord] if [coord] is not a valid
     coordinate for a hole on the board.*)
 
-(* val print_board : t -> string *)
+val string_of_board : t -> int -> int -> string
+(** INCOMPLETE SPEC *)
