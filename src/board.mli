@@ -18,12 +18,11 @@ exception BadCoord of (int * int)
 
 val init_board : int -> t
 (** [init_board a] is the initial state of the board with [a] number of players.
-    In that state the baord is initialized with 10 marbles for each player in
+    In that state the board is initialized with 10 marbles for each player in
     the corners of the star, starting from the bottom point. If there are
     multiple players, the second will be top, the third will be top left, the
     fourth will be bottom right, the fifth will be bottom left, and the sixth
-    will be top right. Requires: [players] is an integer between 1 and 6,
-    inclusive. *)
+    will be top right. Requires: [a] is between 1 and 6, inclusive. *)
 
 val holes_with_marbles : t -> (int * int) list
 (** [holes_with_marbles b] is the list of coordinates corresponding to holes
