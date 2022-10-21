@@ -3,8 +3,46 @@ open Board
 open State
 open Action
 
+(** [string_of_number n] is the two-digit string representation of the number
+    [n]. If [n] is less than 10, then a 0 is added in front. Example:
+    [string_of_number 1] is "01". Requires: 0 <= n <= 99 *)
+let string_of_number n =
+  if n < 10 then "0" ^ string_of_int n else string_of_int n
+
+(** [marble_style m] is the styling of marble with color [m] to the terminal. *)
+let marble_style = function
+  | "red" -> [ ANSITerminal.on_red; ANSITerminal.white ]
+  | "black" -> [ ANSITerminal.on_black; ANSITerminal.white ]
+  | "yellow" -> [ ANSITerminal.on_yellow; ANSITerminal.black ]
+  | "blue" -> [ ANSITerminal.on_blue; ANSITerminal.white ]
+  | "white" -> [ ANSITerminal.on_white; ANSITerminal.black ]
+  | "green" -> [ ANSITerminal.on_green; ANSITerminal.black ]
+  | _ -> []
+
+(** [print_marble m] is the terminal output of marble [m]. *)
+let print_marble m =
+  print_string "(";
+  ANSITerminal.print_string (marble_style m.color) (string_of_number m.number);
+  print_string ")"
+
+let rec print_board_helper b row col =
+  match (row, col) with
+  | 18, _ -> print_string ""
+  | r, 26 ->
+      print_string "\n \n";
+      print_board_helper b (r + 1) 1
+  | r, c ->
+      (match marble_in_hole b (c, r) with
+      | exception BadCoord _ -> print_string "    "
+      | Some m -> print_marble m
+      | None -> print_string "(  )");
+      print_board_helper b r (c + 1)
+
+(** [print_board b] is the terminal output of board [b]. *)
+let print_board b = print_board_helper b 1 1
+
 let rec run_game st =
-  print_endline (string_of_board (current_board st));
+  print_board (current_board st);
   print_endline
     (current_player st ^ "'s turn: 'move' a marble, 'end' turn, or 'quit' game.");
   print_string "> ";

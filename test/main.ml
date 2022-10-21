@@ -278,11 +278,9 @@ let state_tests =
     ( "(10, 14) is empty" >:: fun _ ->
       assert_equal None
         (marble_in_hole (current_board move_red7_RU) (10, 14))
-        ~printer:string_of_marble_option );
-    ( "print board" >:: fun _ ->
-      assert_equal "hi"
-        (string_of_board (current_board move_red7_RU))
-        ~printer:Fun.id );
+        ~printer:string_of_marble_option )
+    (* ( "print board" >:: fun _ -> assert_equal "hi" (string_of_board
+       (current_board move_red7_RU)) ~printer:Fun.id ); *);
   ]
 
 let suite =
