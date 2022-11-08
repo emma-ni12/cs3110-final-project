@@ -260,6 +260,8 @@ let state_of_result result =
 let state_tests =
   let initial_state_2 = init_state (init_board 2) 2 in
   let move_red7_RU = state_of_result (move 7 "RU" initial_state_2) in
+  let move_red7_R = state_of_result (move 7 "R" initial_state_2) in
+  let move_red7_L = state_of_result (move 7 "L" initial_state_2) in
   [
     ( "2P initial current board" >:: fun _ ->
       assert_equal
@@ -278,7 +280,11 @@ let state_tests =
     ( "(10, 14) is empty" >:: fun _ ->
       assert_equal None
         (marble_in_hole (current_board move_red7_RU) (10, 14))
-        ~printer:string_of_marble_option )
+        ~printer:string_of_marble_option );
+    ( "1P initial can't move 7 R" >:: fun _ ->
+      assert_equal initial_state_2 move_red7_R );
+    ( "1P initial can't move 7 L" >:: fun _ ->
+      assert_equal initial_state_2 move_red7_L )
     (* ( "print board" >:: fun _ -> assert_equal "hi" (string_of_board
        (current_board move_red7_RU)) ~printer:Fun.id ); *);
   ]

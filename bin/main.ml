@@ -62,7 +62,9 @@ let rec run_game st =
               print_endline ("Moving marble " ^ string_of_int n ^ " to " ^ d);
               run_game new_st
           | Illegal st ->
-              print_endline "Illegal argument, try again!";
+              print_endline
+                "You can't move off the board or to an occupied hole, try \
+                 again!";
               run_game st)
       | End ->
           print_endline ("Ended turn for " ^ current_player st);

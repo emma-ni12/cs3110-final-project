@@ -47,6 +47,14 @@ let current_board st = st.board
 let current_player st = st.current_player
 let num_players st = st.num_players
 
+(** [valid_destination st d] is whether [d] is a valid destination on the
+    current board in [st]. A valid destination is one that exists on the board
+    and isn't currently occupied by another marble. *)
+let valid_destination (st : t) (d : int * int) =
+  match marble_in_hole (current_board st) d with
+  | None -> true
+  | Some _ | (exception BadCoord _) -> false
+
 (**[calculate_move m (x',y') t] is the result of moving the marble to a certain
    destination *)
 let calculate_move (m : int) (x', y') (st : t) =
@@ -60,13 +68,16 @@ let calculate_move (m : int) (x', y') (st : t) =
     match coord with
     | x, y -> (x + x', y + y')
   in
-  Legal
-    {
-      new_st with
-      board =
-        edit_board_at_coord (current_board new_st) destination
-          (Some { color = st.current_player; number = m });
-    }
+  match valid_destination st destination with
+  | true ->
+      Legal
+        {
+          new_st with
+          board =
+            edit_board_at_coord (current_board new_st) destination
+              (Some { color = st.current_player; number = m });
+        }
+  | false -> Illegal st
 
 (* right now, all moves are "legal," we will implement the rule checking
    after *)
