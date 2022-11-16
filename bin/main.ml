@@ -41,8 +41,9 @@ let rec print_board_helper b row col =
 (** [print_board b] is the terminal output of board [b]. *)
 let print_board b = print_board_helper b 1 1
 
-let rec run_game st =
+let rec run_game (message : string) st =
   print_board (current_board st);
+  print_endline message;
   print_endline
     (current_player st ^ "'s turn: 'move' a marble, 'end' turn, or 'quit' game.");
   print_string "> ";
@@ -51,25 +52,28 @@ let rec run_game st =
   | action -> (
       match parse action with
       | (exception Invalid_Action) | (exception Empty) ->
-          print_endline
+          run_game
             "Invalid action, try again! ('move [number 1-10] [L, LU, LD, R, \
-             RU, RD]' or 'end' or 'quit')";
-          run_game st
+             RU, RD]' or 'end' or 'quit')"
+            st
       | Move (n, d) -> (
           let new_st_result = move n d st in
           match new_st_result with
-          | Legal new_st ->
-              print_endline ("Moving marble " ^ string_of_int n ^ " to " ^ d);
-              run_game new_st
-          | Illegal st ->
-              print_endline
-                "You can't move off the board or to an occupied hole, try \
-                 again!";
-              run_game st)
+          | Legal (new_st, auto_end) ->
+              if auto_end then
+                let end_st = end_turn new_st in
+                run_game
+                  ("Moving marble " ^ string_of_int n ^ " to " ^ d
+                 ^ ". Ended turn for " ^ current_player new_st)
+                  end_st
+              else
+                run_game
+                  ("Moving marble " ^ string_of_int n ^ " to " ^ d)
+                  new_st
+          | Illegal (st, message) -> run_game message st)
       | End ->
-          print_endline ("Ended turn for " ^ current_player st);
           let new_st = end_turn st in
-          run_game new_st
+          run_game ("Ended turn for " ^ current_player st) new_st
       | Quit ->
           print_endline "Quitting the game. Thanks for playing!";
           exit 0)
@@ -82,7 +86,7 @@ let play_game p =
        number between 1 and 6."
   else
     let st = init_state (init_board p) p in
-    run_game st
+    run_game "" st
 
 let data_dir_prefix = "data" ^ Filename.dir_sep
 

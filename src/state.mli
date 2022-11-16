@@ -29,8 +29,8 @@ val num_players : t -> int
 
 (** The type representing the result of an attempted movement. *)
 type result =
-  | Legal of t
-  | Illegal of t
+  | Legal of (t * bool)
+  | Illegal of (t * string)
 
 val move : int -> string -> t -> result
 (** [move m dir st] is the result of attempting to move marble [m] in the

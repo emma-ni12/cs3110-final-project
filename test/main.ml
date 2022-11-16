@@ -254,14 +254,40 @@ let board_tests =
 
 let state_of_result result =
   match result with
-  | Legal st -> st
-  | Illegal st -> st
+  | Legal (st, _) -> st
+  | Illegal (st, _) -> st
 
 let state_tests =
   let initial_state_2 = init_state (init_board 2) 2 in
+  let black_turn = end_turn initial_state_2 in
+  let yellow_turn = end_turn (end_turn (init_state (init_board 6) 6)) in
+  let blue_turn = end_turn yellow_turn in
+  let white_turn = end_turn blue_turn in
+  let green_turn = end_turn white_turn in
   let move_red7_RU = state_of_result (move 7 "RU" initial_state_2) in
   let move_red7_R = state_of_result (move 7 "R" initial_state_2) in
   let move_red7_L = state_of_result (move 7 "L" initial_state_2) in
+  let move_red1_LU = state_of_result (move 1 "LU" initial_state_2) in
+  let move_red1_RD = state_of_result (move 1 "RD" move_red1_LU) in
+  let move_red1_RU = state_of_result (move 1 "RU" initial_state_2) in
+  let move_red1_LD = state_of_result (move 1 "LD" move_red1_RU) in
+  let move_red9_L =
+    state_of_result
+      (move 9 "L"
+         (end_turn (state_of_result (move 1 "LD" (end_turn move_red7_RU)))))
+  in
+  let move_red9_R = state_of_result (move 9 "R" move_red9_L) in
+  let move_black1_RD = state_of_result (move 1 "RD" black_turn) in
+  let move_black1_LD = state_of_result (move 1 "LD" black_turn) in
+  let move_yellow1_R = state_of_result (move 1 "R" yellow_turn) in
+  let move_yellow1_RD = state_of_result (move 1 "RD" yellow_turn) in
+  let move_blue4_L = state_of_result (move 4 "L" blue_turn) in
+  let move_blue4_LU = state_of_result (move 4 "LU" blue_turn) in
+  let move_white1_R = state_of_result (move 1 "R" white_turn) in
+  let move_white1_RU = state_of_result (move 1 "RU" white_turn) in
+  let move_green4_L = state_of_result (move 4 "L" green_turn) in
+  let move_green4_LD = state_of_result (move 4 "LD" green_turn) in
+
   [
     ( "2P initial current board" >:: fun _ ->
       assert_equal
@@ -276,6 +302,86 @@ let state_tests =
       assert_equal
         (Some { color = "red"; number = 7 })
         (marble_in_hole (current_board move_red7_RU) (11, 13))
+        ~printer:string_of_marble_option );
+    ( "red1 now in (9,13) hopping LU" >:: fun _ ->
+      assert_equal
+        (Some { color = "red"; number = 1 })
+        (marble_in_hole (current_board move_red1_LU) (9, 13))
+        ~printer:string_of_marble_option );
+    ( "red1 now in (17,13) hopping RU" >:: fun _ ->
+      assert_equal
+        (Some { color = "red"; number = 1 })
+        (marble_in_hole (current_board move_red1_RU) (17, 13))
+        ~printer:string_of_marble_option );
+    ( "red1 now in (13,17) hopping RD " >:: fun _ ->
+      assert_equal
+        (Some { color = "red"; number = 1 })
+        (marble_in_hole (current_board move_red1_RD) (13, 17))
+        ~printer:string_of_marble_option );
+    ( "red1 now in (13,17) hopping LD " >:: fun _ ->
+      assert_equal
+        (Some { color = "red"; number = 1 })
+        (marble_in_hole (current_board move_red1_LD) (13, 17))
+        ~printer:string_of_marble_option );
+    ( "red9 now in (10,14) hopping L" >:: fun _ ->
+      assert_equal
+        (Some { color = "red"; number = 9 })
+        (marble_in_hole (current_board move_red9_L) (10, 14))
+        ~printer:string_of_marble_option );
+    ( "red9 now in (14,14) hopping R" >:: fun _ ->
+      assert_equal
+        (Some { color = "red"; number = 9 })
+        (marble_in_hole (current_board move_red9_R) (14, 14))
+        ~printer:string_of_marble_option );
+    ( "black1 now in (17,5)" >:: fun _ ->
+      assert_equal
+        (Some { color = "black"; number = 1 })
+        (marble_in_hole (current_board move_black1_RD) (17, 5))
+        ~printer:string_of_marble_option );
+    ( "black1 now in (9,5)" >:: fun _ ->
+      assert_equal
+        (Some { color = "black"; number = 1 })
+        (marble_in_hole (current_board move_black1_LD) (9, 5))
+        ~printer:string_of_marble_option );
+    ( "yellow1 now in (9,5)" >:: fun _ ->
+      assert_equal
+        (Some { color = "yellow"; number = 1 })
+        (marble_in_hole (current_board move_yellow1_R) (9, 5))
+        ~printer:string_of_marble_option );
+    ( "yellow1 now in (5,9)" >:: fun _ ->
+      assert_equal
+        (Some { color = "yellow"; number = 1 })
+        (marble_in_hole (current_board move_yellow1_RD) (5, 9))
+        ~printer:string_of_marble_option );
+    ( "blue4 now in (17,13)" >:: fun _ ->
+      assert_equal
+        (Some { color = "blue"; number = 4 })
+        (marble_in_hole (current_board move_blue4_L) (17, 13))
+        ~printer:string_of_marble_option );
+    ( "blue4 now in (21,9)" >:: fun _ ->
+      assert_equal
+        (Some { color = "blue"; number = 4 })
+        (marble_in_hole (current_board move_blue4_LU) (21, 9))
+        ~printer:string_of_marble_option );
+    ( "white1 now in (9,13)" >:: fun _ ->
+      assert_equal
+        (Some { color = "white"; number = 1 })
+        (marble_in_hole (current_board move_white1_R) (9, 13))
+        ~printer:string_of_marble_option );
+    ( "white1 now in (5,9)" >:: fun _ ->
+      assert_equal
+        (Some { color = "white"; number = 1 })
+        (marble_in_hole (current_board move_white1_RU) (5, 9))
+        ~printer:string_of_marble_option );
+    ( "green4 now in (17,5)" >:: fun _ ->
+      assert_equal
+        (Some { color = "green"; number = 4 })
+        (marble_in_hole (current_board move_green4_L) (17, 5))
+        ~printer:string_of_marble_option );
+    ( "green4 now in (21,9)" >:: fun _ ->
+      assert_equal
+        (Some { color = "green"; number = 4 })
+        (marble_in_hole (current_board move_green4_LD) (21, 9))
         ~printer:string_of_marble_option );
     ( "(10, 14) is empty" >:: fun _ ->
       assert_equal None
