@@ -1,0 +1,25 @@
+
+📜 THE RULES OF THE GAME 📜
+
+In this virtual board game, 1-6 players will battle against each other on
+a star-shaped board. Your goal is to move all 10 of your colored marbles from 
+your starting corner to the opposite corner.
+
+During each turn, you can move one marble to one adjacent hole or make one 
+or more hops over adjacent marbles. You can move as many times as desired 
+and valid, and then end your turn. At that point, the next player will go.
+
+To move a marble, format your command like so: 'move [marble number] [direction]'
+
+The marble number is an integer 1-10 corresponding to the marble you wish to 
+move. The direction is one of the following 6:
+
+L (left)      LU (left up)      LD (left down)
+R (right)     RU (right up)     RD (right down)
+
+As an example, if you want to move your marble 10 to the left, you would input:
+'move 10 L'
+
+You may quit the game at anytime by entering 'quit'
+
+🔴⚫🟡 Good luck, and have fun! 🔵⚪🟢

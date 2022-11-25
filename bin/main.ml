@@ -78,27 +78,53 @@ let rec run_game (message : string) st =
           print_endline "Quitting the game. Thanks for playing!";
           exit 0)
 
-(** [play_game p] starts the game with [p] players. *)
-let play_game p =
-  if p < 0 || p > 6 then
-    print_endline
-      "Invalid number of players. Please run make play again and enter a \
-       number between 1 and 6."
-  else
-    let st = init_state (init_board p) p in
-    run_game "" st
+(** [play_game p] starts the game with [p] players if [p] is between 1-6.
+    Otherwise, it loops until a valid input is received
+
+    [invalid_players message] prints [message] to the terminal if the player
+    doesn't enter a valid input for the number of players. *)
+let rec play_game input =
+  try
+    let p = int_of_string input in
+    if p <= 0 || p > 6 then
+      invalid_players
+        "\nInvalid number of players. Please enter a number between 1 and 6!"
+    else
+      let st = init_state (init_board p) p in
+      run_game "" st
+  with Failure s ->
+    invalid_players
+      "\nSorry, that's not a number between 1 and 6. Please try again!"
+
+and invalid_players message =
+  print_endline message;
+  print_string "> ";
+  play_game (read_line ())
 
 let data_dir_prefix = "data" ^ Filename.dir_sep
+
+(** [print_from_file filename] prints the contents of [filename] to the
+    terminal.
+
+    Reference: http://www.codecodex.com/wiki/Reading_text_from_a_file#OCaml *)
+let print_from_file filename =
+  let ch = open_in filename in
+  try
+    while true do
+      print_endline (input_line ch)
+    done
+  with End_of_file -> close_in ch
 
 (** [main ()] prompts for the game to play, then starts it. *)
 let main () =
   ANSITerminal.print_string [ ANSITerminal.red ]
-    "\n\nWelcome to Chinese Caml 🐫 Checkers .\n";
-  print_endline "Please enter the number of players in the game. \n";
+    "\n\nWelcome to Chinese Caml 🐫 Checkers.\n";
+  print_from_file "./data/instructions.txt";
+  print_endline "\nPlease enter the number of players in the game. \n";
   print_string "> ";
   match read_line () with
   | exception End_of_file -> ()
-  | players -> play_game (int_of_string players)
+  | players -> play_game players
 
 (* Execute the game engine. *)
 let () = main ()
