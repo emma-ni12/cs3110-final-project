@@ -45,6 +45,11 @@ val marble_in_hole : t -> int * int -> m option
 val coord_of_marble : t -> m -> int * int
 (** [coord_of_marble b m] is the coordinate of the marble [m] on the board [b]. *)
 
+val all_in_corner : t -> string -> string -> bool
+(** [all_in_corner b corner_c marble_c] is whether the corner associated with
+    color [corner_c] on the board [b] is completely filled with marbles of color
+    [marble_c]. *)
+
 val string_of_board : t -> string
 (** [string_of_board b] is the string representation of the board [b]. *)
 

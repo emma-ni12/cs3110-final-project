@@ -9,7 +9,7 @@ type t = {
 }
 
 type result =
-  | Legal of (t * bool)
+  | Legal of (t * bool * bool)
   | Illegal of (t * string)
 
 exception BadPlayer
@@ -36,6 +36,9 @@ let rec color_from_number players number =
   match players with
   | [] -> raise BadPlayer
   | (c, n) :: t -> if n = number then c else color_from_number t number
+
+(** [wrap n] is the player number [n], wrapped between 1-6. *)
+let wrap p n = if n > p then 1 else n
 
 let init_state b p =
   {
@@ -119,6 +122,23 @@ let slide (x, y) (dir : string) (st : t) =
   | "RD" -> valid_slide (x, y) (1, 1) st
   | _ -> (x, y)
 
+let opposite_corner color =
+  match color with
+  | "red" -> "black"
+  | "black" -> "red"
+  | "yellow" -> "blue"
+  | "blue" -> "yellow"
+  | "white" -> "green"
+  | "green" -> "white"
+  | _ -> failwith "Invalid color"
+
+(** [win_condition_met st] is whether the current player in [st] has won the
+    game. The player has won if they've moved all of their marbles into the
+    opposite corner. *)
+let win_condition_met st : bool =
+  let corner_to_check = st.current_player |> opposite_corner in
+  all_in_corner st.board corner_to_check st.current_player
+
 (**[calculate_move m (x',y') t] is the result of moving the marble to a certain
    destination *)
 let calculate_move (m : int) (dir : string) (st : t) =
@@ -143,15 +163,17 @@ let calculate_move (m : int) (dir : string) (st : t) =
         abs (fst destination - fst coord) + abs (snd destination - snd coord)
       in
       let auto_end = if displacement <= 2 then true else false in
-      Legal
-        ( {
-            new_st with
-            board =
-              edit_board_at_coord (current_board new_st) destination
-                (Some { color = st.current_player; number = m });
-            last_marble = { color = st.current_player; number = m };
-          },
-          auto_end )
+      let final_st =
+        {
+          new_st with
+          board =
+            edit_board_at_coord (current_board new_st) destination
+              (Some { color = st.current_player; number = m });
+          last_marble = { color = st.current_player; number = m };
+        }
+      in
+      let game_won = win_condition_met final_st in
+      Legal (final_st, auto_end, game_won)
   | false ->
       Illegal
         ( st,
@@ -175,9 +197,6 @@ let move (m : int) (dir : string) (st : t) =
                 ( st,
                   "Choose a direction: L (left), R (right), LU (left-up), RU \
                    (right-up), LD (left-down), RD (right-down)." ))
-
-(** [wrap n] is the player number [n], wrapped between 1-6. *)
-let wrap p n = if n > p then 1 else n
 
 let end_turn st =
   let next_player =

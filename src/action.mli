@@ -16,7 +16,7 @@ val parse : string -> action
     input is the action verb, and any remaining words are used for action data.
     Examples:
 
-    - [parse "move 10       L"] is [Move (10, "L")].
+    - [parse "move 10 L"] is [Move (10, "L")].
     - [parse "end"] is [End].
     - [parse "quit"] is [Quit].
 

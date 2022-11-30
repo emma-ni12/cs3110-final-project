@@ -254,7 +254,7 @@ let board_tests =
 
 let state_of_result result =
   match result with
-  | Legal (st, _) -> st
+  | Legal (st, _, _) -> st
   | Illegal (st, _) -> st
 
 let state_tests =

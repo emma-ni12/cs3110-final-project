@@ -29,7 +29,7 @@ val num_players : t -> int
 
 (** The type representing the result of an attempted movement. *)
 type result =
-  | Legal of (t * bool)
+  | Legal of (t * bool * bool)
   | Illegal of (t * string)
 
 val move : int -> string -> t -> result

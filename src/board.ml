@@ -5,7 +5,17 @@ type m = {
   number : int;
 }
 
-type t = ((int * int) * m option) list
+(* type t = ((int * int) * m option) list *)
+
+type section = {
+  color : string;
+  coords : (int * int) list;
+}
+
+type t = {
+  board : ((int * int) * m option) list;
+  sections : section list;
+}
 
 exception BadJson
 exception BadCoord of (int * int)
@@ -55,14 +65,13 @@ let string_of_number n =
 
 (** [create_section_holes] are the holes associated with a corner of the board,
     populated by [color] marbles, [n] is number of players we check against, [p]
-    is inputed number of players.
-
-    INCOMPLETE SPEC, COME BACK *)
+    is inputed number of players. *)
 let create_section_holes p n color lst =
   if p >= n then coord_list_to_marble_list lst color 1
   else coord_list_to_hole_list lst color
 
-(** WRITE SPEC HERE *)
+(** [create_holes p j] are the holes associated with all sections (corners and
+    center) included in [j], populated for a number of [p] players. *)
 let create_holes p j =
   match j with
   | "red", lst -> create_section_holes p 1 "red" lst
@@ -74,6 +83,24 @@ let create_holes p j =
   | "center", lst -> coord_list_to_hole_list lst "center"
   | _ -> raise BadJson
 
+(** [create_section_coords j] is a section of a color and its associated
+    coordinate points matched in [j]. *)
+let create_section_coords j =
+  match j with
+  | "red", lst -> { color = "red"; coords = lst }
+  | "black", lst -> { color = "black"; coords = lst }
+  | "yellow", lst -> { color = "yellow"; coords = lst }
+  | "blue", lst -> { color = "blue"; coords = lst }
+  | "white", lst -> { color = "white"; coords = lst }
+  | "green", lst -> { color = "green"; coords = lst }
+  | "center", lst -> { color = "center"; coords = lst }
+  | _ -> raise BadJson
+
+(* let init_board' players = let j = Yojson.Basic.from_file "./data/coords.json"
+   |> to_assoc |> List.map un_yojson_list |> List.map yojson_list_to_tuple in
+   let holes_by_color = List.map (create_holes players) j in List.fold_left (fun
+   lst1 lst2 -> lst1 @ lst2) [] holes_by_color *)
+
 let init_board players =
   let j =
     Yojson.Basic.from_file "./data/coords.json"
@@ -81,29 +108,67 @@ let init_board players =
     |> List.map yojson_list_to_tuple
   in
   let holes_by_color = List.map (create_holes players) j in
-  List.fold_left (fun lst1 lst2 -> lst1 @ lst2) [] holes_by_color
+  let b = List.fold_left (fun lst1 lst2 -> lst1 @ lst2) [] holes_by_color in
+  let sec = List.map create_section_coords j in
+  { board = b; sections = sec }
 
-let rec holes_with_marbles t =
-  match t with
+let rec holes_with_marbles_helper b =
+  match b with
   | [] -> []
   | ((x, y), m_opt) :: tail ->
-      if m_opt <> None then (x, y) :: holes_with_marbles tail
-      else holes_with_marbles tail
+      if m_opt <> None then (x, y) :: holes_with_marbles_helper tail
+      else holes_with_marbles_helper tail
 
-let rec empty_holes t =
-  match t with
+let holes_with_marbles (t : t) = holes_with_marbles_helper t.board
+
+(* let rec holes_with_marbles' t = match t with | [] -> [] | ((x, y), m_opt) ::
+   tail -> if m_opt <> None then (x, y) :: holes_with_marbles tail else
+   holes_with_marbles tail*)
+
+let rec empty_holes_helper b =
+  match b with
   | [] -> []
   | ((x, y), m_opt) :: tail ->
-      if m_opt = None then (x, y) :: empty_holes tail else empty_holes tail
+      if m_opt = None then (x, y) :: empty_holes_helper tail
+      else empty_holes_helper tail
+
+let rec empty_holes (t : t) = empty_holes_helper t.board
+
+(* let rec empty_holes' t = match t with | [] -> [] | ((x, y), m_opt) :: tail ->
+   if m_opt = None then (x, y) :: empty_holes tail else empty_holes tail*)
 
 let marble_in_hole (t : t) (x, y) =
-  try List.assoc (x, y) t with Not_found -> raise (BadCoord (x, y))
+  try List.assoc (x, y) t.board with Not_found -> raise (BadCoord (x, y))
 
 let rec coord_of_marble (b : t) (m : m) =
-  match b with
+  match b.board with
   | [] -> raise BadMarble
   | ((x, y), m_opt) :: t ->
-      if m_opt = Some m then (x, y) else coord_of_marble t m
+      if m_opt = Some m then (x, y)
+      else coord_of_marble { board = t; sections = b.sections } m
+
+(** [marble_match_color color marble] is whether the color of [marble] matches
+    [color]. If [marble] is None, it's false. *)
+let marble_match_color (color : string) (marble : m option) : bool =
+  match marble with
+  | Some m -> m.color = color
+  | None -> false
+
+(** [corner_marble_colors t c lst] is whether all the coordinates in [lst]
+    contain marbles on the board [t] that are of the color [c]. *)
+let rec corner_marble_colors (t : t) (c : string) lst =
+  match lst with
+  | [] -> true
+  | coord :: tail ->
+      marble_in_hole t coord |> marble_match_color c
+      && corner_marble_colors t c tail
+
+let rec all_in_corner (b : t) (corner_c : string) (marble_c : string) : bool =
+  match b.sections with
+  | [] -> raise BadMarble
+  | sec :: tail ->
+      if sec.color = corner_c then corner_marble_colors b marble_c sec.coords
+      else all_in_corner { board = b.board; sections = tail } corner_c marble_c
 
 let rec string_of_board_helper b row col =
   match (row, col) with
@@ -119,7 +184,10 @@ let rec string_of_board_helper b row col =
 let string_of_board b = string_of_board_helper b 1 1
 
 let edit_board_at_coord b (x, y) (new_marble : m option) =
-  List.map
-    (fun ((a, b), m) ->
-      if a = x && b = y then ((a, b), new_marble) else ((a, b), m))
-    b
+  let new_b =
+    List.map
+      (fun ((a, b), m) ->
+        if a = x && b = y then ((a, b), new_marble) else ((a, b), m))
+      b.board
+  in
+  { board = new_b; sections = b.sections }

@@ -41,6 +41,22 @@ let rec print_board_helper b row col =
 (** [print_board b] is the terminal output of board [b]. *)
 let print_board b = print_board_helper b 1 1
 
+(** [print_winning_player c] prints a message stating that the player of color
+    [c] has won the game. *)
+let print_winning_player c : unit =
+  print_endline ("\nPLAYER " ^ c ^ " HAS WON THE GAME! THANKS FOR PLAYING!\n")
+
+(** [print_win_message p] prints a win message for the player [p]. *)
+let print_win_message p =
+  match p with
+  | "red" -> print_winning_player "🔴 RED 🔴"
+  | "black" -> print_winning_player "⚫ BLACK ⚫"
+  | "yellow" -> print_winning_player "🟡 YELLOW 🟡"
+  | "blue" -> print_winning_player "🔵 BLUE 🔵"
+  | "white" -> print_winning_player "⚪ WHITE ⚪"
+  | "green" -> print_winning_player "🟢 GREEN 🟢"
+  | _ -> failwith "Invalid color"
+
 let rec run_game (message : string) st =
   print_board (current_board st);
   print_endline message;
@@ -59,8 +75,12 @@ let rec run_game (message : string) st =
       | Move (n, d) -> (
           let new_st_result = move n d st in
           match new_st_result with
-          | Legal (new_st, auto_end) ->
-              if auto_end then
+          | Legal (new_st, auto_end, game_won) ->
+              if game_won then (
+                print_board (current_board new_st);
+                print_win_message (current_player new_st);
+                exit 0)
+              else if auto_end then
                 let end_st = end_turn new_st in
                 run_game
                   ("Moving marble " ^ string_of_int n ^ " to " ^ d
