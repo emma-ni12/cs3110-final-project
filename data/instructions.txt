@@ -1,7 +1,7 @@
 
 📜 THE RULES OF THE GAME 📜
 
-In this virtual board game, 1-6 players will battle against each other on
+In this virtual board game, 2-6 players will battle against each other on
 a star-shaped board. Your goal is to move all 10 of your colored marbles from 
 your starting corner to the opposite corner.
 

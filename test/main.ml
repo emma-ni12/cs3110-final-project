@@ -1,25 +1,52 @@
+(**Test Plan:
+
+   Given that our group created a game (Chinese Caml Checkers), our testing
+   approach consisted of both extensive play/manual testing and OUnit testing
+   (tests in this file) to make sure certain features worked the way we expected
+   them to.
+
+   More specifically, we tested the board (shape, valid/invalid holes), state,
+   destination validity, and sequences of movements with OUnit testing and we
+   tested our win condition, user ability to move marbles around the board, and
+   game directions with manual testing. Since the board, state, movements, and
+   destination validity all contains pieces of logic that are needed to play the
+   game and methods that modify the game state accordingly, we decided that it
+   would be helpful to test all of these functions with OUnit tests. For
+   functionality like win condition and ability to move marbles around the
+   board, we felt like they were either easier to test through play testing or
+   they were already indirectly tested through other functions.
+
+   For features that we tested with OUnit testing, we employed the concepts of
+   glass-box and black-box testing. One group member would write a function and
+   test cases based on their implementation of the function (glass-box) and
+   another group member would then write tests based only on the specifications
+   of the function defined in the mli (black-box). We did not use randomized
+   testing because our game system operates on predictable movements based on a
+   set of predefined rules.
+
+   We believe that our test suite demonstrates the correctness of our systems
+   because ...... [TODO]*)
+
 open OUnit2
 open Game
 open Board
 open State
 
-(** printers go here *)
-
 (** [string_of_int_pair_list lst] is the string representation of a list of
-    int*int pairs.*)
+    int*int pairs *)
 let rec string_of_int_pair_list = function
   | [] -> ""
   | (x, y) :: t ->
       "(" ^ string_of_int x ^ "," ^ string_of_int y ^ ") , "
       ^ string_of_int_pair_list t
 
-(**[string_of_marble_option m] is the string representation of type m*)
+(**[string_of_marble_option m] is the string representation of type m *)
 let string_of_marble_option = function
   | None -> "empty hole"
   | Some { color; number } -> color ^ string_of_int number
 
 (** [cmp_pair_lists lst1 lst2] compares two lists of pairs to see whether they
-    are equivalent lists of pairs, regardless of order. *)
+    are equivalent lists of pairs, regardless of order *)
 let cmp_pair_lists lst1 lst2 = List.for_all (fun a -> List.mem a lst2) lst1
 
 (* End printers and helpers **************************************************)
