@@ -3,9 +3,9 @@ Interactive multiplayer version of the board game
   Chinese Checkers written in OCaml for the CS 3110 Final Project. Supports turn-based gameplay for 2 to 6 players. 
 
 ## Team Members:   
-[Emma Ni] (https://github.com/emma-ni12) (emma.ni2212@gmail.com / en257)   
-[Sunny Sun] (https://github.com/xiangwansun) (xiangwan.sun@gmail.com / xs275)   
-[Ellyn Hu] (https://github.com/EllynHu) (iriselyn@gmail.com / eyh29)
+-[Emma Ni] (https://github.com/emma-ni12) emma.ni2212@gmail.com / en257
+-[Sunny Sun] (https://github.com/xiangwansun) xiangwan.sun@gmail.com / xs275
+-[Ellyn Hu] (https://github.com/EllynHu) iriselyn@gmail.com / eyh29
 
 ## Terminal Gameplay Visual
 ![Screenshot](game.png)
