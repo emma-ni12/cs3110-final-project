@@ -21,10 +21,7 @@ Interactive multiplayer version of the board game
 - Runs the game interface
 #### `make clean`
 - Runs `ocaml build -clean` to get rid of `_build` directory
-#### `make docs`
-- Produces documentation for the project in folders `_doc.public` and `_doc.private`
+#### `make doc`
+- Produces HTML documentation for the project 
 #### `make zip`
 - Compresses project into a zip file for submission
-#### `./cloc.sh`
-- Counts and outputs the number of lines of code in the system
-- Install cloc [here](https://github.com/AlDanial/cloc#install-via-package-manager)
