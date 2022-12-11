@@ -22,6 +22,6 @@ demo-video-url: ""
 # Write a short, attention-grabbing description of your project.
 desc: >
   Our project is an interactive multiplayer terminal version of the board game 
-  Chinese Checkers. It supports turn-based gameplay for 1 to 6 players. The 
+  Chinese Checkers. It supports turn-based gameplay for 2 to 6 players. The 
   terminal displays a new board any time a marble is moved, and players move 
   marbles by typing commands into the terminal.

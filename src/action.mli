@@ -4,9 +4,13 @@ type action =
   | Move of (int * string)
   | End
   | Quit
+      (** type [action] represents a legal action that a player can take during
+          a game. These include moving a marble, ending a turn, or quitting the
+          game. Invariant: [Move] must take an integer between 1 and 10, and a
+          legal direction code (L, LU, LD, R, RU, RD). *)
 
 exception Empty
-(** Raised when an empty command is parsed. *)
+(** Raised when an empty action is parsed. *)
 
 exception Invalid_Action
 (** Raised when a invalid action is parsed. *)
@@ -27,6 +31,6 @@ val parse : string -> action
 
     Raises: [Invalid_Action] if the action is invalid. An action is invalid if
     its first word is not "move", "end", or "quit"; if the first word is "move"
-    but the action does not include a number between 0 and 10 and a direction
+    but the action does not include a number between 1 and 10 and a direction
     code (L, LU, LD, R, RU, RD); or if the first word is "end" or "quit" and the
     action contains characters after the first word. *)

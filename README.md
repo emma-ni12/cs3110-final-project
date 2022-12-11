@@ -25,3 +25,5 @@ Interactive multiplayer version of the board game
 - Produces HTML documentation for the project 
 #### `make zip`
 - Compresses project into a zip file for submission
+#### `make cloc`
+- Checks the number of lines of code 

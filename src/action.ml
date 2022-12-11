@@ -6,11 +6,11 @@ type action =
 exception Empty
 exception Invalid_Action
 
-(** [safe_to_string n] is either the int representation of [n] or -1 if [n]
-    isn't an int. *)
+(** [safe_to_string n] is either the int representation of [n] or -1 if [n] is
+    not an int. *)
 let safe_to_string n = try int_of_string n with Failure _ -> -1
 
-(** [check_most lst] is the move Move (n, d). Raises: Invalid_Action if the move
+(** [check_move lst] is the move Move (n, d). Raises: Invalid_Action if the move
     isn't valid. *)
 let check_move lst =
   match lst with

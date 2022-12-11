@@ -1,3 +1,5 @@
 (executable
  (name main)
- (libraries Game ANSITerminal))
+ (libraries Game ANSITerminal)
+ (instrumentation
+  (backend bisect_ppx)))

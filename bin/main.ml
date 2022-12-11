@@ -98,7 +98,7 @@ let rec run_game (message : string) st =
           print_endline "Quitting the game. Thanks for playing!";
           exit 0)
 
-(** [play_game p] starts the game with [p] players if [p] is between 1-6.
+(** [play_game p] starts the game with [p] players if [p] is between 2-6.
     Otherwise, it loops until a valid input is received
 
     [invalid_players message] prints [message] to the terminal if the player
@@ -106,15 +106,15 @@ let rec run_game (message : string) st =
 let rec play_game input =
   try
     let p = int_of_string input in
-    if p <= 0 || p > 6 then
+    if p <= 1 || p > 6 then
       invalid_players
-        "\nInvalid number of players. Please enter a number between 1 and 6!"
+        "\nInvalid number of players. Please enter a number between 2 and 6!"
     else
       let st = init_state (init_board p) p in
       run_game "" st
   with Failure s ->
     invalid_players
-      "\nSorry, that's not a number between 1 and 6. Please try again!"
+      "\nSorry, that's not a number between 2 and 6. Please try again!"
 
 and invalid_players message =
   print_endline message;

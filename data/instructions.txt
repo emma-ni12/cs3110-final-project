@@ -17,8 +17,8 @@ move. The direction is one of the following 6:
 L (left)      LU (left up)      LD (left down)
 R (right)     RU (right up)     RD (right down)
 
-As an example, if you want to move your marble 10 to the left, you would input:
-'move 10 L'
+As an example, if you want to move your marble 05 to the left, you would input:
+'move 05 L'
 
 You may quit the game at anytime by entering 'quit'
 

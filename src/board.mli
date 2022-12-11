@@ -1,4 +1,4 @@
-(** Representation of the star shaped board
+(** Representation of the star-shaped game board.
 
     This module represents the state of a board, including the holes on the
     board, and marbles in holes. *)

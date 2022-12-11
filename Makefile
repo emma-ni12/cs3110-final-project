@@ -33,5 +33,16 @@ clean:
 doc:
 	dune build @doc
 
-opendoc: doc
-	@bash opendoc.sh
+cloc:
+	cloc --by-file --include-lang=OCaml .
+
+bisect: bisect-clean
+	-dune exec --instrument-with bisect_ppx --force test/main.exe
+	bisect-ppx-report html
+
+bisect-clean:
+	rm -rf _coverage bisect*.coverage
+
+clean: bisect-clean
+	dune clean
+	rm -f cs3110-final-project.zip
