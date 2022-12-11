@@ -5,12 +5,12 @@ type m = {
   number : int;
 }
 
-(* type t = ((int * int) * m option) list *)
-
 type section = {
   color : string;
   coords : (int * int) list;
 }
+(** [section] is color and coordinates making up one of the 6 corners, or the
+    middle of the board. *)
 
 type t = {
   board : ((int * int) * m option) list;
@@ -26,7 +26,8 @@ let un_yojson_list j =
   match j with
   | color, coords_yojson -> (color, to_list coords_yojson)
 
-(** [list_to_pair] turns the list of coordinates into a pair of coordinates*)
+(** [list_to_pair \[x; y\]] turns the list of coordinates into a pair of
+    coordinates*)
 let list_to_pair = function
   | [ x; y ] -> (to_int x, to_int y)
   | _ -> raise BadJson
@@ -48,7 +49,7 @@ let rec coord_list_to_marble_list lst color c =
       ((x, y), Some { color; number = c })
       :: coord_list_to_marble_list t color (c + 1)
 
-(** can refactor/combine these functions*)
+(* can refactor/combine these functions*)
 
 (** [coord_list_to_hole_list lst color] take a coordinate and return a tuple
     with the coordinates and an empty hole*)

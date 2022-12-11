@@ -18,7 +18,7 @@ exception BadCoord of (int * int)
 
 exception BadMarble
 (** Raised when an invalid marble id is encountered, i.e. a color not included
-    in [red, black, yellow, blue, white, green] or a number >0 or >10. *)
+    in [red, black, yellow, blue, white, green] or a number <1 or >10. *)
 
 val init_board : int -> t
 (** [init_board a] is the initial state of the board with [a] number of players.
@@ -26,15 +26,15 @@ val init_board : int -> t
     the corners of the star, starting from the bottom point. If there are
     multiple players, the second will be top, the third will be top left, the
     fourth will be bottom right, the fifth will be bottom left, and the sixth
-    will be top right. Requires: [a] is between 1 and 6, inclusive. *)
+    will be top right. Requires: [a] is between 2 and 6, inclusive. *)
 
 val holes_with_marbles : t -> (int * int) list
 (** [holes_with_marbles b] is the list of coordinates corresponding to holes
-    that currently have marbles. *)
+    that currently have marbles on board [b]. *)
 
 val empty_holes : t -> (int * int) list
 (** [empty_holes b] is the list of coordinates corresponding to holes that do
-    not currently have marbles. *)
+    not currently have marbles on board [b]. *)
 
 val marble_in_hole : t -> int * int -> m option
 (** [marble_in_hole b coord] is the marble at hole [coord] on the board b. If

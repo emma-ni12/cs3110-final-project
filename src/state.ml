@@ -51,6 +51,7 @@ let init_state b p =
 let current_board st = st.board
 let current_player st = st.current_player
 let num_players st = st.num_players
+let last_marble st = st.last_marble
 
 type hole_status =
   | Open

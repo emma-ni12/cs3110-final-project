@@ -1,13 +1,13 @@
 (** Parsing of player actions. *)
 
+(** type [action] represents a legal action that a player can take during a
+    game. These include moving a marble, ending a turn, or quitting the game.
+    Invariant: [Move] must take an integer between 1 and 10, and a legal
+    direction code (L, LU, LD, R, RU, RD). *)
 type action =
   | Move of (int * string)
   | End
   | Quit
-      (** type [action] represents a legal action that a player can take during
-          a game. These include moving a marble, ending a turn, or quitting the
-          game. Invariant: [Move] must take an integer between 1 and 10, and a
-          legal direction code (L, LU, LD, R, RU, RD). *)
 
 exception Empty
 (** Raised when an empty action is parsed. *)
