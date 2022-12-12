@@ -7,6 +7,7 @@ type t = {
   current_player : string;
   last_marble : Board.m;
   last_player : string;
+  scoreboard : int list;
 }
 
 type result =
@@ -41,13 +42,14 @@ let rec color_from_number players number =
 (** [wrap n] is the player number [n], wrapped between 1-6. *)
 let wrap p n = if n > p then 1 else n
 
-let init_state b p =
+let init_state b p scrlst =
   {
     board = b;
     num_players = p;
     current_player = color_from_number player_order 1;
     last_marble = { color = "none"; number = -1 };
     last_player = "";
+    scoreboard = scrlst;
   }
 
 let current_board st = st.board
@@ -55,6 +57,7 @@ let current_player st = st.current_player
 let num_players st = st.num_players
 let last_marble st = st.last_marble
 let last_player st = st.last_player
+let scoreboard st = st.scoreboard
 
 type hole_status =
   | Open

@@ -44,7 +44,9 @@ let print_board b = print_board_helper b 1 1
 (** [print_winning_player c] prints a message stating that the player of color
     [c] has won the game. *)
 let print_winning_player c : unit =
-  print_endline ("\nPLAYER " ^ c ^ " HAS WON THE GAME! THANKS FOR PLAYING!\n")
+  print_endline
+    ("\nPLAYER " ^ c
+   ^ " HAS WON THE GAME! THANKS FOR PLAYING!\n Play another round? (Y/N): ")
 
 (** [print_win_message p] prints a win message for the player [p]. *)
 let print_win_message p =
@@ -57,7 +59,90 @@ let print_win_message p =
   | "green" -> print_winning_player "🟢 GREEN 🟢"
   | _ -> failwith "Invalid color"
 
-let rec run_game (message : string) st =
+let print_score_helper s color =
+  print_string ("|  " ^ color ^ ": " ^ string_of_int s ^ "  |")
+
+let print_scoreboard st =
+  let p = num_players st in
+  match scoreboard st with
+  | [ red; black; yellow; blue; white; green ] ->
+      print_string "|";
+      print_score_helper red "Red";
+      print_score_helper black "Black";
+      if p > 2 then print_score_helper yellow "Yellow";
+      if p > 3 then print_score_helper blue "Blue";
+      if p > 4 then print_score_helper white "White";
+      if p > 5 then print_score_helper green "Green";
+      print_string "|";
+      print_newline ();
+      print_newline ()
+  | _ -> failwith "Incorrect state- scoreboard does not have 6 scores"
+
+let rec play_again st =
+  match read_line () with
+  | "Y" | "y" | "Yes" | "yes" -> (
+      match scoreboard st with
+      | [ red; black; yellow; blue; white; green ] -> (
+          match current_player st with
+          | "red" ->
+              let new_st =
+                init_state
+                  (init_board (num_players st))
+                  (num_players st)
+                  [ red + 1; black; yellow; blue; white; green ]
+              in
+              run_game "" new_st
+          | "black" ->
+              let new_st =
+                init_state
+                  (init_board (num_players st))
+                  (num_players st)
+                  [ red; black + 1; yellow; blue; white; green ]
+              in
+              run_game "" new_st
+          | "yellow" ->
+              let new_st =
+                init_state
+                  (init_board (num_players st))
+                  (num_players st)
+                  [ red; black; yellow + 1; blue; white; green ]
+              in
+              run_game "" new_st
+          | "blue" ->
+              let new_st =
+                init_state
+                  (init_board (num_players st))
+                  (num_players st)
+                  [ red; black; yellow; blue + 1; white; green ]
+              in
+              run_game "" new_st
+          | "white" ->
+              let new_st =
+                init_state
+                  (init_board (num_players st))
+                  (num_players st)
+                  [ red; black; yellow; blue; white + 1; green ]
+              in
+              run_game "" new_st
+          | "green" ->
+              let new_st =
+                init_state
+                  (init_board (num_players st))
+                  (num_players st)
+                  [ red; black; yellow; blue; white; green + 1 ]
+              in
+              run_game "" new_st
+          | _ -> failwith "impossible to have this player color")
+      | _ -> failwith "Incorrect state- scoreboard does not have 6 scores")
+  | "N" | "n" | "No" | "no" ->
+      print_endline "Hope you enjoyed our Chinese (Caml) Checkers!";
+      exit 0
+  | _ ->
+      print_endline "Please type Y or N";
+      play_again st
+
+and run_game (message : string) st =
+  print_scoreboard st;
   print_board (current_board st);
   print_endline message;
   print_endline
@@ -79,7 +164,7 @@ let rec run_game (message : string) st =
               if game_won then (
                 print_board (current_board new_st);
                 print_win_message (current_player new_st);
-                exit 0)
+                play_again new_st)
               else if auto_end then
                 let end_st = end_turn new_st in
                 run_game
@@ -110,7 +195,7 @@ let rec play_game input =
       invalid_players
         "\nInvalid number of players. Please enter a number between 2 and 6!"
     else
-      let st = init_state (init_board p) p in
+      let st = init_state (init_board p) p [ 0; 0; 0; 0; 0; 0 ] in
       run_game "" st
   with Failure s ->
     invalid_players
