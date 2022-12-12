@@ -182,7 +182,7 @@ let rec string_of_board_helper b row col =
       | None -> "(  )")
       ^ string_of_board_helper b r (c + 1)
 
-let string_of_board b = string_of_board_helper b 1 1
+let string_of_board (b : t) = string_of_board_helper b 1 1
 
 let edit_board_at_coord b (x, y) (new_marble : m option) =
   let new_b =

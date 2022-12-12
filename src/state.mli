@@ -30,6 +30,10 @@ val last_marble : t -> Board.m
 (** [last_marble st] is the last moved marble associated with the current active
     turn in state [st]. *)
 
+val last_player : t -> string
+(** [last_player st] is the last player to go before the current active turn in
+    state [st]. *)
+
 (** The type representing the result of an attempted movement. [Illegal] carries
     the state of the board with no changes made and an message regarding the
     reason for the illegality. [Legal st' auto_end game_won] carries the state

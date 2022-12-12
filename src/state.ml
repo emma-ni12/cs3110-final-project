@@ -6,6 +6,7 @@ type t = {
   num_players : int;
   current_player : string;
   last_marble : Board.m;
+  last_player : string;
 }
 
 type result =
@@ -46,12 +47,14 @@ let init_state b p =
     num_players = p;
     current_player = color_from_number player_order 1;
     last_marble = { color = "none"; number = -1 };
+    last_player = "";
   }
 
 let current_board st = st.board
 let current_player st = st.current_player
 let num_players st = st.num_players
 let last_marble st = st.last_marble
+let last_player st = st.last_player
 
 type hole_status =
   | Open
@@ -151,8 +154,10 @@ let calculate_move (m : int) (dir : string) (st : t) =
   in
   (* calculate the destination coordinate*)
   let destination =
-    if { color = st.current_player; number = m } = st.last_marble then
-      hop coord dir st (* if a player has already moved, they can only hop*)
+    if
+      { color = st.current_player; number = m } = st.last_marble
+      && st.current_player = st.last_player
+    then hop coord dir st (* if a player has already moved, they can only hop*)
     else
       match hop coord dir st with
       | x, y -> if (x, y) = coord then slide coord dir st else (x, y)
@@ -171,6 +176,7 @@ let calculate_move (m : int) (dir : string) (st : t) =
             edit_board_at_coord (current_board new_st) destination
               (Some { color = st.current_player; number = m });
           last_marble = { color = st.current_player; number = m };
+          last_player = new_st.current_player;
         }
       in
       let game_won = win_condition_met final_st in
@@ -187,8 +193,10 @@ let move (m : int) (dir : string) (st : t) =
   else
     match st.last_marble with
     | { color; number } -> (
-        if color = st.current_player && m <> number then
-          Illegal (st, "You can only move one marble per turn!")
+        if
+          color = st.current_player && m <> number
+          && st.current_player = st.last_player
+        then Illegal (st, "You can only move one marble per turn!")
           (* check if player has already moved one of their marbles this turn*)
         else
           match dir with
@@ -205,4 +213,4 @@ let end_turn st =
     |> wrap st.num_players
     |> color_from_number player_order
   in
-  { st with current_player = next_player }
+  { st with current_player = next_player; last_player = st.current_player }

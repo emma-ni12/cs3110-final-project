@@ -32,5 +32,10 @@ val parse : string -> action
     Raises: [Invalid_Action] if the action is invalid. An action is invalid if
     its first word is not "move", "end", or "quit"; if the first word is "move"
     but the action does not include a number between 1 and 10 and a direction
-    code (L, LU, LD, R, RU, RD); or if the first word is "end" or "quit" and the
-    action contains characters after the first word. *)
+    code; or if the first word is "end" or "quit" and the action contains
+    characters after the first word. All entries are case-insensitive, so "END"
+    and "eNd" are both valid actions.
+
+    The following are valid direction codes: (L, LU, LD, R, RU, RD), (left,
+    left-up, left-down, right, right-up, right-down), as well as any other
+    combination. *)

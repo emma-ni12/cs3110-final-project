@@ -39,7 +39,12 @@
 open OUnit2
 open Game
 open Board
+open Action
 open State
+
+(*************************************************************************)
+(* PRINTERS AND HELPERS *)
+(*************************************************************************)
 
 (** [string_of_int_pair_list lst] is the string representation of a list of
     int*int pairs *)
@@ -49,15 +54,15 @@ let rec string_of_int_pair_list = function
       "(" ^ string_of_int x ^ "," ^ string_of_int y ^ ") , "
       ^ string_of_int_pair_list t
 
-(**[string_of_marble_option m] is the string representation of type m *)
+(** [string_of_marble_option m] is the string representation of type m *)
 let string_of_marble_option = function
   | None -> "empty hole"
   | Some { color; number } -> color ^ string_of_int number
 
-(**[string_of_coord c] is the string representation of a coordinate [c]. *)
+(** [string_of_coord c] is the string representation of a coordinate [c]. *)
 let string_of_coord (x, y) = "(" ^ string_of_int x ^ "," ^ string_of_int y ^ ")"
 
-(**[string_of_state st] is the string representation of a state [st]. *)
+(** [string_of_state st] is the string representation of a state [st]. *)
 let string_of_state (st : State.t) =
   let n_p = num_players st in
   let current_p = current_player st in
@@ -66,22 +71,37 @@ let string_of_state (st : State.t) =
   ^ current_p ^ ", last marble: "
   ^ string_of_marble_option (Some last_m)
 
-(**[string_of_result r] is the string representation of the result [r]. *)
+(** [string_of_action a] is the string representation of an action [a]. *)
+let string_of_action (a : action) =
+  match a with
+  | Move (n, d) -> "Move " ^ string_of_int n ^ " " ^ d
+  | End -> "End"
+  | Quit -> "Quit"
+
+(** [string_of_result r] is the string representation of the result [r]. *)
 let string_of_result = function
   | Illegal (t, message) -> "Illegal: old state, message: " ^ message
   | Legal (t, auto_end, game_won) ->
       "Legal: new state, auto end: " ^ string_of_bool auto_end ^ ", game won: "
       ^ string_of_bool game_won
 
+(** [state_of_result r] is the state contained in the result [r]. *)
+let state_of_result r =
+  match r with
+  | Legal (st, _, _) -> st
+  | Illegal (st, _) -> st
+
 (** [cmp_pair_lists lst1 lst2] compares two lists of pairs to see whether they
     are equivalent lists of pairs, regardless of order *)
 let cmp_pair_lists lst1 lst2 = List.for_all (fun a -> List.mem a lst2) lst1
 
-(* End printers and helpers **************************************************)
+(*************************************************************************)
+(* UNIT TEST FUNCTIONS *)
+(*************************************************************************)
 
-(**[init_marbles_test name p expected_output] constructs a OUnit test named
-   [name] that asserts the equality of [expected_output] with
-   [holes_with_marbles] for a board with p players.*)
+(** [init_marbles_test name p expected_output] constructs a OUnit test named
+    [name] that asserts the equality of [expected_output] with
+    [holes_with_marbles] for a board with p players. *)
 let init_marbles_test (name : string) (p : int)
     (expected_output : (int * int) list) =
   name >:: fun _ ->
@@ -89,9 +109,9 @@ let init_marbles_test (name : string) (p : int)
     (holes_with_marbles (init_board p))
     ~printer:string_of_int_pair_list
 
-(**[init_empty_holes_test name p expected_output] constructs a OUnit test named
-   [name] that asserts the equality of [expected_output] with [empty_holes] for
-   a board with p players.*)
+(** [init_empty_holes_test name p expected_output] constructs a OUnit test named
+    [name] that asserts the equality of [expected_output] with [empty_holes] for
+    a board with p players. *)
 let init_empty_holes_test (name : string) (p : int)
     (expected_output : (int * int) list) =
   name >:: fun _ ->
@@ -99,9 +119,9 @@ let init_empty_holes_test (name : string) (p : int)
     (empty_holes (init_board p))
     ~printer:string_of_int_pair_list
 
-(**[marble_in_hole_test name coord players expected_output] constructs a OUnit
-   test named [name] that asserts the equality of [expected_output] with
-   [marble_in_hole coord players].*)
+(** [marble_in_hole_test name coord players expected_output] constructs a OUnit
+    test named [name] that asserts the equality of [expected_output] with
+    [marble_in_hole coord players]. *)
 let marble_in_hole_test (name : string) (coord : int * int) (players : int)
     (expected_output : m option) =
   name >:: fun _ ->
@@ -109,17 +129,17 @@ let marble_in_hole_test (name : string) (coord : int * int) (players : int)
     (marble_in_hole (init_board players) coord)
     ~printer:string_of_marble_option
 
-(**[coord_of_marble_test name b m expected_output] constructs a OUnit test named
-   [name] that asserts the equality of [expected_output] with
-   [coord_of_marble b m].*)
+(** [coord_of_marble_test name b m expected_output] constructs a OUnit test
+    named [name] that asserts the equality of [expected_output] with
+    [coord_of_marble b m]. *)
 let coord_of_marble_test (name : string) (b : Board.t) (m : Board.m)
     (expected_output : int * int) =
   name >:: fun _ ->
   assert_equal expected_output (coord_of_marble b m) ~printer:string_of_coord
 
-(**[all_in_corner_test name b corner_c marble_c] constructs a OUnit test named
-   [name] that asserts the equality of [expected_output] with
-   [all_in_corner b corner_c marble_c].*)
+(** [all_in_corner_test name b corner_c marble_c expected_output] constructs a
+    OUnit test named [name] that asserts the equality of [expected_output] with
+    [all_in_corner b corner_c marble_c]. *)
 let all_in_corner_test (name : string) (b : Board.t) (corner_c : string)
     (marble_c : string) (expected_output : bool) =
   name >:: fun _ ->
@@ -127,10 +147,54 @@ let all_in_corner_test (name : string) (b : Board.t) (corner_c : string)
     (all_in_corner b corner_c marble_c)
     ~printer:string_of_bool
 
+(** [parse_test a expected_output] constructs a OUnit test named [name] that
+    asserts the equality of [expected_output] with [parse a]. *)
+let parse_test (name : string) (a : string) (expected_output : action) =
+  name >:: fun _ ->
+  assert_equal expected_output (parse a) ~printer:string_of_action
+
+(** [current_board_test name st expected_output] constructs a OUnit test named
+    [name] that asserts the equality of [expected_output] with
+    [current_board st]. *)
+let current_board_test (name : string) (st : State.t)
+    (expected_output : Board.t) =
+  name >:: fun _ ->
+  assert_equal expected_output (current_board st) ~printer:string_of_board
+
+(** [current_player_test name st expected_output] constructs a OUnit test named
+    [name] that asserts the equality of [expected_output] with
+    [current_player_test st]. *)
+let current_player_test (name : string) (st : State.t)
+    (expected_output : string) =
+  name >:: fun _ ->
+  assert_equal expected_output (current_player st) ~printer:Fun.id
+
+(** [num_players_test name st expected_output] constructs a OUnit test named
+    [name] that asserts the equality of [expected_output] with [num_players st]. *)
+let num_players_test (name : string) (st : State.t) (expected_output : int) =
+  name >:: fun _ ->
+  assert_equal expected_output (num_players st) ~printer:string_of_int
+
+(** [move_test name m dir st expected_output] constructs a OUnit test named
+    [name] that asserts the equality of [expected_output] with [move m dir st]. *)
 let move_test (name : string) (m : int) (dir : string) (st : State.t)
     (expected_output : State.result) =
   name >:: fun _ ->
   assert_equal expected_output (move m dir st) ~printer:string_of_result
+
+(** [marble_after_move_test name st coord expected_output] constructs a OUnit
+    test named [name] that asserts that the marble at the coordinate [coord] on
+    the board of [st] is [m]. *)
+let marble_after_move_test (name : string) (st : State.t) (coord : int * int)
+    (expected_output : m option) =
+  name >:: fun _ ->
+  assert_equal expected_output
+    (marble_in_hole (current_board st) coord)
+    ~printer:string_of_marble_option
+
+(*************************************************************************)
+(* BOARD TESTS *)
+(*************************************************************************)
 
 let init_marble_tests =
   [
@@ -354,6 +418,11 @@ let all_in_corner_tests =
   [
     all_in_corner_test "all marbles in red corner are red" (init_board 2) "red"
       "red" true;
+    all_in_corner_test "all marbles in red corner are not black" (init_board 2)
+      "red" "black" false;
+    ( "invalid corner color: pink" >:: fun _ ->
+      assert_raises BadMarble (fun () ->
+          all_in_corner (init_board 2) "pink" "red") );
   ]
 
 let board_tests =
@@ -365,22 +434,239 @@ let board_tests =
       all_in_corner_tests;
     ]
 
-let state_of_result result =
-  match result with
-  | Legal (st, _, _) -> st
-  | Illegal (st, _) -> st
+(*************************************************************************)
+(* ACTION TESTS *)
+(*************************************************************************)
+
+let empty_action_tests =
+  [
+    ( "invalid action: empty string" >:: fun _ ->
+      assert_raises Empty (fun () -> parse "") );
+    ( "invalid action: only spaces" >:: fun _ ->
+      assert_raises Empty (fun () -> parse "                ") );
+  ]
+
+let end_tests =
+  [
+    parse_test "valid end action: end" "end" End;
+    parse_test "valid end action: END" "END" End;
+    parse_test "valid end action: End" "End" End;
+    parse_test "valid end action: eNd" "eNd" End;
+    ( "invalid end action" >:: fun _ ->
+      assert_raises Invalid_Action (fun () -> parse "end 10") );
+  ]
+
+let quit_tests =
+  [
+    parse_test "valid quit action: quit" "quit" Quit;
+    parse_test "valid quit action: QUIT" "QUIT" Quit;
+    parse_test "valid quit action: Quit" "Quit" Quit;
+    parse_test "valid quit action: qUiT" "qUiT" Quit;
+    ( "invalid quit action" >:: fun _ ->
+      assert_raises Invalid_Action (fun () -> parse "quit game") );
+  ]
+
+let invalid_move_tests =
+  [
+    ( "invalid move action: no number and direction" >:: fun _ ->
+      assert_raises Invalid_Action (fun () -> parse "move") );
+    ( "invalid move action: float as marble number" >:: fun _ ->
+      assert_raises Invalid_Action (fun () -> parse "move 1.0 LU") );
+    ( "invalid move action: word as marble number" >:: fun _ ->
+      assert_raises Invalid_Action (fun () -> parse "move one LU") );
+    ( "invalid move action: marble number < 1" >:: fun _ ->
+      assert_raises Invalid_Action (fun () -> parse "move 0 LU") );
+    ( "invalid move action: marble number > 10" >:: fun _ ->
+      assert_raises Invalid_Action (fun () -> parse "move 11 LU") );
+    ( "invalid move action: not a direction code" >:: fun _ ->
+      assert_raises Invalid_Action (fun () -> parse "move 5 up") );
+    ( "invalid move action: not a direction code" >:: fun _ ->
+      assert_raises Invalid_Action (fun () -> parse "move 5 sideways") );
+  ]
+
+let valid_move_tests =
+  [
+    (* case-insensitive test for move keyword *)
+    parse_test "valid move action: move 5 L" "move 5     L" (Move (5, "L"));
+    parse_test "valid move action: MOVE 5 L" "MOVE     5 L" (Move (5, "L"));
+    parse_test "valid move action: Move 5 L" "  Move 5 L" (Move (5, "L"));
+    parse_test "valid move action: mOvE 5 L" "mOvE 5 L       " (Move (5, "L"));
+    (* case-insensitive tests for shortened directions *)
+    parse_test "valid move action: move 5 l" "move 5 l" (Move (5, "L"));
+    parse_test "valid move action: move 5 lu" "move 5 lu" (Move (5, "LU"));
+    parse_test "valid move action: move 5 LU" "move 5 LU" (Move (5, "LU"));
+    parse_test "valid move action: move 5 Lu" "move 5 Lu" (Move (5, "LU"));
+    parse_test "valid move action: move 5 ld" "move 5 ld" (Move (5, "LD"));
+    parse_test "valid move action: move 5 LD" "move 5 LD" (Move (5, "LD"));
+    parse_test "valid move action: move 5 Ld" "move 5 Ld" (Move (5, "LD"));
+    parse_test "valid move action: move 5 r" "move 5 r" (Move (5, "R"));
+    parse_test "valid move action: move 5 ru" "move 5 ru" (Move (5, "RU"));
+    parse_test "valid move action: move 5 RU" "move 5 RU" (Move (5, "RU"));
+    parse_test "valid move action: move 5 Ru" "move 5 Ru" (Move (5, "RU"));
+    parse_test "valid move action: move 5 rd" "move 5 rd" (Move (5, "RD"));
+    parse_test "valid move action: move 5 Rd" "move 5 Rd" (Move (5, "RD"))
+    (* case-insensitive tests for long directions *);
+    parse_test "valid move action: move 5 left" "move 5 left" (Move (5, "L"));
+    parse_test "valid move action: move 5 LEFT" "move 5 LEFT" (Move (5, "L"));
+    parse_test "valid move action: move 5 left-up" "move 5 left-up"
+      (Move (5, "LU"));
+    parse_test "valid move action: move 5 Left-Up" "move 5 Left-Up"
+      (Move (5, "LU"));
+    parse_test "valid move action: move 5 left-down" "move 5 left-down"
+      (Move (5, "LD"));
+    parse_test "valid move action: move 5 lEFT-dOWN" "move 5 lEFT-dOWN"
+      (Move (5, "LD"));
+    parse_test "valid move action: move 5 right" "move 5 right" (Move (5, "R"));
+    parse_test "valid move action: move 5 Right" "move 5 Right" (Move (5, "R"));
+    parse_test "valid move action: move 5 right-up" "move 5 right-up"
+      (Move (5, "RU"));
+    parse_test "valid move action: move 5 rIgHt-Up" "move 5 rIgHt-Up"
+      (Move (5, "RU"));
+    parse_test "valid move action: move 5 right-down" "move 5 right-down"
+      (Move (5, "RD"));
+  ]
+
+let invalid_first_word_tests =
+  [
+    ( "invalid first word: skip" >:: fun _ ->
+      assert_raises Invalid_Action (fun () -> parse "skip") );
+    ( "invalid first word: moev 10 LU" >:: fun _ ->
+      assert_raises Invalid_Action (fun () -> parse "moev 10 LU") );
+  ]
+
+let action_tests =
+  List.flatten
+    [
+      empty_action_tests;
+      end_tests;
+      quit_tests;
+      invalid_move_tests;
+      valid_move_tests;
+      invalid_first_word_tests;
+    ]
+
+(*************************************************************************)
+(* STATE TESTS *)
+(*************************************************************************)
+
+(* Defining some states to test board setup and movements *)
+let initial_state_2 = init_state (init_board 2) 2
+let initial_state_3 = init_state (init_board 3) 3
+let initial_state_4 = init_state (init_board 4) 4
+let initial_state_5 = init_state (init_board 5) 5
+let initial_state_6 = init_state (init_board 6) 6
+
+let current_board_tests =
+  [
+    current_board_test "2P initial current board" initial_state_2 (init_board 2);
+    current_board_test "3P initial current board" initial_state_3 (init_board 3);
+    current_board_test "4P initial current board" initial_state_4 (init_board 4);
+    current_board_test "5P initial current board" initial_state_5 (init_board 5);
+    current_board_test "6P initial current board" initial_state_6 (init_board 6);
+  ]
+
+let black_turn = end_turn initial_state_6
+let yellow_turn = end_turn black_turn
+let blue_turn = end_turn yellow_turn
+let white_turn = end_turn blue_turn
+let green_turn = end_turn white_turn
+
+let current_player_tests =
+  [
+    current_player_test "6P initial current player: red" initial_state_6 "red";
+    current_player_test "6P current player: black" black_turn "black";
+    current_player_test "6P current player: yellow" yellow_turn "yellow";
+    current_player_test "6P current player: blue" blue_turn "blue";
+    current_player_test "6P current player: white" white_turn "white";
+    current_player_test "6P current player: green" green_turn "green";
+  ]
+
+let num_players_tests =
+  [
+    num_players_test "2P num players: 2" initial_state_2 2;
+    num_players_test "3P num players: 3" initial_state_3 3;
+    num_players_test "4P num players: 4" initial_state_4 4;
+    num_players_test "5P num players: 5" initial_state_5 5;
+    num_players_test "6P num players: 6" initial_state_6 6;
+  ]
+
+let invalid_marble_msg = "Pick a marble between 1 and 10!"
+
+let invalid_marble_number_tests =
+  [
+    move_test "move: invalid marble number 11" 11 "L" yellow_turn
+      (Illegal (yellow_turn, invalid_marble_msg));
+    move_test "move: invalid marble number -1" ~-1 "L" blue_turn
+      (Illegal (blue_turn, invalid_marble_msg));
+    move_test "move: invalid marble number 100" 100 "L" white_turn
+      (Illegal (white_turn, invalid_marble_msg));
+    move_test "move: invalid marble number 0" 0 "L" white_turn
+      (Illegal (white_turn, invalid_marble_msg));
+  ]
+
+let invalid_dest_msg =
+  "You can't move off the board, into an occupied hole, or try to move to an \
+   adjacent hole after doing one or more hops over marbles; try again!"
+
+let invalid_destination_tests =
+  [
+    move_test "move: invalid slide R to occupied destination" 7 "R"
+      initial_state_2
+      (Illegal (initial_state_2, invalid_dest_msg));
+    move_test "move: invalid slide L to off-board destination" 7 "L"
+      initial_state_2
+      (Illegal (initial_state_2, invalid_dest_msg));
+    move_test "move: invalid hop RD to off-board destination" 5 "RD"
+      initial_state_2
+      (Illegal (initial_state_2, invalid_dest_msg));
+    move_test "move: invalid hop LD to off-board destination" 5 "LD"
+      initial_state_2
+      (Illegal (initial_state_2, invalid_dest_msg));
+  ]
+
+let invalid_moves_tests =
+  List.flatten [ invalid_marble_number_tests; invalid_destination_tests ]
+
+(* Slide moves *)
+let move_red7_RU = state_of_result (move 7 "RU" initial_state_2)
+let move_red7_LU = state_of_result (move 7 "LU" initial_state_2)
+
+let move_red7_L =
+  state_of_result (move 7 "L" (move_red7_LU |> end_turn |> end_turn))
+
+let valid_slide_moves_tests =
+  [
+    marble_after_move_test "red 7 slides RU to (11,13)" move_red7_RU (11, 13)
+      (Some { color = "red"; number = 7 });
+    marble_after_move_test "red 7 slides LU to (9,13)" move_red7_LU (9, 13)
+      (Some { color = "red"; number = 7 });
+    marble_after_move_test "red 7 slides L to (7,13)" move_red7_L (7, 13)
+      (Some { color = "red"; number = 7 });
+  ]
+
+let valid_moves_tests = List.flatten [ valid_slide_moves_tests ]
 
 let state_tests =
+  List.flatten
+    [
+      current_board_tests;
+      current_player_tests;
+      num_players_tests;
+      invalid_moves_tests;
+      valid_moves_tests;
+    ]
+
+let state_tests' =
   let initial_state_2 = init_state (init_board 2) 2 in
   let black_turn = end_turn initial_state_2 in
   let yellow_turn = end_turn (end_turn (init_state (init_board 6) 6)) in
   let blue_turn = end_turn yellow_turn in
   let white_turn = end_turn blue_turn in
   let green_turn = end_turn white_turn in
-  let move_red7_RU = state_of_result (move 7 "RU" initial_state_2) in
-  let move_red7_LU = state_of_result (move 7 "LU" initial_state_2) in
-  let move_red7_R = state_of_result (move 7 "R" initial_state_2) in
-  let move_red7_L = state_of_result (move 7 "L" initial_state_2) in
+  (* let move_red7_RU = state_of_result (move 7 "RU" initial_state_2) in *)
+  (* let move_red7_LU = state_of_result (move 7 "LU" initial_state_2) in *)
+  (* let move_red7_R = state_of_result (move 7 "R" initial_state_2) in *)
+  (* let move_red7_L = state_of_result (move 7 "L" initial_state_2) in *)
   let move_red1_LU = state_of_result (move 1 "LU" initial_state_2) in
   let move_red1_RD = state_of_result (move 1 "RD" move_red1_LU) in
   let move_red1_RU = state_of_result (move 1 "RU" initial_state_2) in
@@ -391,12 +677,12 @@ let state_tests =
          (end_turn (state_of_result (move 1 "LD" (end_turn move_red7_RU)))))
   in
   let move_red9_R = state_of_result (move 9 "R" move_red9_L) in
-  let move_red0_RU = state_of_result (move 0 "RU" initial_state_2) in
-  let move_red11_RU = state_of_result (move 11 "RU" initial_state_2) in
+  (* let move_red0_RU = state_of_result (move 0 "RU" initial_state_2) in let
+     move_red11_RU = state_of_result (move 11 "RU" initial_state_2) in *)
   let move_red4_RU = state_of_result (move 4 "RU" initial_state_2) in
   let move_red7_after_4 = state_of_result (move 7 "LU" move_red4_RU) in
-  let move_red5_RD = state_of_result (move 5 "RD" initial_state_2) in
-  let move_red5_LD = state_of_result (move 5 "LD" initial_state_2) in
+  (* let move_red5_RD = state_of_result (move 5 "RD" initial_state_2) in *)
+  (* let move_red5_LD = state_of_result (move 5 "LD" initial_state_2) in *)
   let move_black1_RD = state_of_result (move 1 "RD" black_turn) in
   let move_black1_LD = state_of_result (move 1 "LD" black_turn) in
   let move_black0_R = state_of_result (move 0 "R" black_turn) in
@@ -407,13 +693,13 @@ let state_tests =
   let move_black7_LD = state_of_result (move 7 "LD" black_turn) in
   let move_yellow1_R = state_of_result (move 1 "R" yellow_turn) in
   let move_yellow1_RD = state_of_result (move 1 "RD" yellow_turn) in
-  let move_yellow11_L = state_of_result (move 11 "L" yellow_turn) in
+  (* let move_yellow11_L = state_of_result (move 11 "L" yellow_turn) in *)
   let move_blue4_L = state_of_result (move 4 "L" blue_turn) in
   let move_blue4_LU = state_of_result (move 4 "LU" blue_turn) in
-  let move_blueneg1_L = state_of_result (move ~-1 "L" blue_turn) in
+  (* let move_blueneg1_L = state_of_result (move ~-1 "L" blue_turn) in *)
   let move_white1_R = state_of_result (move 1 "R" white_turn) in
   let move_white1_RU = state_of_result (move 1 "RU" white_turn) in
-  let move_white100_L = state_of_result (move 100 "L" white_turn) in
+  (* let move_white100_L = state_of_result (move 100 "L" white_turn) in *)
   let move_white0_D = state_of_result (move 0 "D" white_turn) in
   let move_green4_L = state_of_result (move 4 "L" green_turn) in
   let move_green4_LD = state_of_result (move 4 "LD" green_turn) in
@@ -425,20 +711,15 @@ let state_tests =
         (string_of_board (init_board 2))
         (string_of_board (current_board initial_state_2))
         ~printer:Fun.id );
-    ( "2P initial current player" >:: fun _ ->
-      assert_equal "red" (current_player initial_state_2) );
-    ( "2P initial number of players" >:: fun _ ->
-      assert_equal 2 (num_players initial_state_2) );
-    ( "red7 now in (11,13)" >:: fun _ ->
-      assert_equal
-        (Some { color = "red"; number = 7 })
-        (marble_in_hole (current_board move_red7_RU) (11, 13))
-        ~printer:string_of_marble_option );
-    ( "red7 now in (9,13)" >:: fun _ ->
-      assert_equal
-        (Some { color = "red"; number = 7 })
-        (marble_in_hole (current_board move_red7_LU) (9, 13))
-        ~printer:string_of_marble_option );
+    (*( "2P initial current player" >:: fun _ -> assert_equal "red"
+      (current_player initial_state_2) ); ( "2P initial number of players" >::
+      fun _ -> assert_equal 2 (num_players initial_state_2) );*)
+    (* ( "red7 now in (11,13)" >:: fun _ -> assert_equal (Some { color = "red";
+       number = 7 }) (marble_in_hole (current_board move_red7_RU) (11, 13))
+       ~printer:string_of_marble_option ); *)
+    (* ( "red7 now in (9,13)" >:: fun _ -> assert_equal (Some { color = "red";
+       number = 7 }) (marble_in_hole (current_board move_red7_LU) (9, 13))
+       ~printer:string_of_marble_option ); *)
     ( "red1 now in (9,13) hopping LU" >:: fun _ ->
       assert_equal
         (Some { color = "red"; number = 1 })
@@ -533,18 +814,18 @@ let state_tests =
       assert_equal None
         (marble_in_hole (current_board move_red7_RU) (10, 14))
         ~printer:string_of_marble_option );
-    ( "2P initial can't move red 7 R" >:: fun _ ->
-      assert_equal initial_state_2 move_red7_R ~printer:string_of_state );
-    ( "2P initial can't move red 7 L" >:: fun _ ->
-      assert_equal initial_state_2 move_red7_L ~printer:string_of_state );
-    ( "2P initial can't move red 0 RU" >:: fun _ ->
-      assert_equal initial_state_2 move_red0_RU ~printer:string_of_state );
-    ( "2P initial can't move red 11 RU" >:: fun _ ->
-      assert_equal initial_state_2 move_red11_RU ~printer:string_of_state );
-    ( "2P initial can't hop red 5 RD" >:: fun _ ->
-      assert_equal initial_state_2 move_red5_RD ~printer:string_of_state );
-    ( "2P initial can't hop red 5 LD" >:: fun _ ->
-      assert_equal initial_state_2 move_red5_LD ~printer:string_of_state );
+    (* ( "2P initial can't move red 7 R" >:: fun _ -> assert_equal
+       initial_state_2 move_red7_R ~printer:string_of_state ); *)
+    (* ( "2P initial can't move red 7 L" >:: fun _ -> assert_equal
+       initial_state_2 move_red7_L ~printer:string_of_state ); *)
+    (* ( "2P initial can't move red 0 RU" >:: fun _ -> assert_equal
+       initial_state_2 move_red0_RU ~printer:string_of_state ); ( "2P initial
+       can't move red 11 RU" >:: fun _ -> assert_equal initial_state_2
+       move_red11_RU ~printer:string_of_state ); *)
+    (* ( "2P initial can't hop red 5 RD" >:: fun _ -> assert_equal
+       initial_state_2 move_red5_RD ~printer:string_of_state ); *)
+    (* ( "2P initial can't hop red 5 LD" >:: fun _ -> assert_equal
+       initial_state_2 move_red5_LD ~printer:string_of_state ); *)
     ( "2P initial can't move 2 marbles in 1 turn" >:: fun _ ->
       assert_equal move_red4_RU move_red7_after_4 ~printer:string_of_state );
     ( "2P initial can't move black 0 R" >:: fun _ ->
@@ -555,12 +836,12 @@ let state_tests =
       assert_equal black_turn move_black3_LU ~printer:string_of_state );
     ( "2P initial can't hop black 2 RU" >:: fun _ ->
       assert_equal black_turn move_black2_RU ~printer:string_of_state );
-    ( "2P initial can't move yellow 11 L" >:: fun _ ->
-      assert_equal yellow_turn move_yellow11_L ~printer:string_of_state );
-    ( "2P initial can't move blue -1 L" >:: fun _ ->
-      assert_equal blue_turn move_blueneg1_L ~printer:string_of_state );
-    ( "2P initial can't move white 100 L" >:: fun _ ->
-      assert_equal white_turn move_white100_L ~printer:string_of_state );
+    (*( "2P initial can't move yellow 11 L" >:: fun _ -> assert_equal
+      yellow_turn move_yellow11_L ~printer:string_of_state );*)
+    (* ( "2P initial can't move blue -1 L" >:: fun _ -> assert_equal blue_turn
+       move_blueneg1_L ~printer:string_of_state ); *)
+    (* ( "2P initial can't move white 100 L" >:: fun _ -> assert_equal
+       white_turn move_white100_L ~printer:string_of_state ); *)
     ( "2P initial can't move white 0 D" >:: fun _ ->
       assert_equal white_turn move_white0_D ~printer:string_of_state );
     ( "2P initial can't move green 4 U" >:: fun _ ->
@@ -568,6 +849,7 @@ let state_tests =
   ]
 
 let suite =
-  "test suite for final-project" >::: List.flatten [ board_tests; state_tests ]
+  "test suite for final-project"
+  >::: List.flatten [ board_tests; action_tests; state_tests ]
 
 let _ = run_test_tt_main suite
