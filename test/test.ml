@@ -27,6 +27,12 @@
     helped us make better implementation decisions and customize user experience
     to achieve a desired output in specific situations.
 
+    Two additional features that we play-tested were the scoreboard and single
+    vs. multihop gameplay modes. We believe that these two were better tested
+    through play as we could see exactly what the users would be seeing when
+    playing our game and make judgements about the visual as well as functional
+    aspects.
+
     We believe that our test suite demonstrates the correctness of our systems
     because every function listed within our mli files was tested. We used
     property-based tests and checked if the correct outputs based on
@@ -221,6 +227,12 @@ let last_marble_test (name : string) (st : State.t) (expected_output : m) =
   assert_equal (Some expected_output)
     (Some (last_marble st))
     ~printer:string_of_marble_option
+
+(** [last_player_test name st expected_output] constructs a OUnit test named
+    [name] that asserts the equality of [expected_output] with [last_player st]. *)
+let last_player_test (name : string) (st : State.t) (expected_output : string) =
+  name >:: fun _ ->
+  assert_equal expected_output (last_player st) ~printer:Fun.id
 
 (** [move_test name m dir st expected_output] constructs a OUnit test named
     [name] that asserts the equality of [expected_output] with [move m dir st]. *)
@@ -495,7 +507,6 @@ let num_players_tests =
     num_players_test "6P num players: 6" initial_state_6 6;
   ]
 
-let last_marble_tests = []
 let invalid_marble_msg = "Pick a marble between 1 and 10!"
 
 let invalid_marble_number_tests =
@@ -937,6 +948,37 @@ let moves_tests =
       green_moves_tests;
     ]
 
+let last_marble_tests =
+  [
+    last_marble_test "last marble of initial state" initial_state_2
+      { color = "none"; number = -1 };
+    last_marble_test "last marble after red move" slide_red7_LU
+      { color = "red"; number = 7 };
+    last_marble_test "last marble after black move" slide_black7_LD
+      { color = "black"; number = 7 };
+    last_marble_test "last marble after yellow move" hop_yellow1_R
+      { color = "yellow"; number = 1 };
+    last_marble_test "last marble after blue move" hop_blue4_L
+      { color = "blue"; number = 4 };
+    last_marble_test "last marble after white move" hop_white1_R
+      { color = "white"; number = 1 };
+    last_marble_test "last marble after green move" hop_green4_L
+      { color = "green"; number = 4 };
+  ]
+
+let red_turn = end_turn green_turn
+
+let last_player_tests =
+  [
+    last_player_test "last player of initial state" initial_state_2 "";
+    last_player_test "last player after red turn" black_turn "red";
+    last_player_test "last player after black turn" yellow_turn "black";
+    last_player_test "last player after yellow turn" blue_turn "yellow";
+    last_player_test "last player after blue turn" white_turn "blue";
+    last_player_test "last player after white turn" green_turn "white";
+    last_player_test "last player after green turn" red_turn "green";
+  ]
+
 let state_tests =
   List.flatten
     [
@@ -944,6 +986,7 @@ let state_tests =
       current_player_tests;
       num_players_tests;
       last_marble_tests;
+      last_player_tests;
       moves_tests;
     ]
 
