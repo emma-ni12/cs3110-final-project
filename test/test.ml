@@ -526,8 +526,8 @@ let invalid_marble_number_tests =
   ]
 
 let invalid_dest_msg =
-  "You can't move off the board, into an occupied hole, or try to move to an \
-   adjacent hole after doing one or more hops over marbles. Try again!"
+  "You can't move off the board, into an occupied hole, or to an adjacent hole \
+   after doing one or more hops over marbles. Try again!"
 
 let invalid_destination_slide_tests =
   [
@@ -710,10 +710,10 @@ let invalid_destination_hop_tests =
   ]
 
 let invalid_multihop_msg =
-  "You can't move off the board, into an occupied hole, or try to move to an \
-   adjacent hole after doing one or more hops over marbles. In hard mode, you \
-   can only hop over one marble at a time, not over multiple marbles in a line \
-   at once. Try again!"
+  "You can't move off the board, into an occupied hole, or to an adjacent hole \
+   after doing one or more hops over marbles. In hard mode, you can only hop \
+   over one marble at a time, not over multiple marbles in a line at once. Try \
+   again!"
 
 let invalid_multihop_tests =
   [
