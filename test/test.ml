@@ -1,46 +1,47 @@
-(**Test Plan:
+(** Test Plan:
 
-   Given that our group created a game (Chinese Caml Checkers), our testing
-   approach consisted of both extensive play/manual testing and OUnit testing
-   (tests in this file) to make sure certain features worked the way we expected
-   them to.
+    Given that our group created a game (Chinese Caml Checkers), our testing
+    approach consisted of both extensive play/manual testing and OUnit testing
+    (tests in this file) to make sure certain features worked the way we
+    expected them to.
 
-   More specifically, we tested the board (shape, valid/invalid holes), state,
-   destination validity, and sequences of movements with OUnit testing and we
-   tested our win condition, ability to move marbles, score count, and checking
-   if the game directions showed up at the beginning of the game with manual
-   testing. Since the board, state, movements, and destination validity all
-   contains pieces of logic that are needed to play the game and methods that
-   modify the game state accordingly, we decided that it would be helpful to
-   test all of these functions with OUnit tests. For functionality like win
-   condition and ability to move marbles around the board, we felt like they
-   were either easier to test through play testing or they were already
-   indirectly tested through other functions.
+    More specifically, we tested the board (shape, valid/invalid holes), state,
+    destination validity, and sequences of movements with OUnit testing and we
+    tested our win condition, ability to move marbles, score count, and checking
+    if the game directions showed up at the beginning of the game with manual
+    testing. Since the board, state, movements, and destination validity all
+    contains pieces of logic that are needed to play the game and methods that
+    modify the game state accordingly, we decided that it would be helpful to
+    test all of these functions with OUnit tests. For functionality like win
+    condition and ability to move marbles around the board, we felt like they
+    were either easier to test through play testing or they were already
+    indirectly tested through other functions.
 
-   For features that we tested with OUnit testing, we employed the concepts of
-   glass-box and black-box testing. One group member would write a function and
-   test cases based on their implementation of the function (glass-box) and
-   another group member would then write tests based only on the specifications
-   of the function defined in the mli (black-box). We did not use randomized
-   testing because our game system operates on predictable movements based on a
-   set of predefined rules. Additionally, we felt that play testing our game
-   helped us improve better make implementation decisions and customize user
-   experience to achieve a desired output in specific situations.
+    For features that we tested with OUnit testing, we employed the concepts of
+    glass-box and black-box testing. One group member would write a function and
+    test cases based on their implementation of the function (glass-box) and
+    another group member would then write tests based only on the specifications
+    of the function defined in the mli (black-box). We did not use randomized
+    testing because our game system operates on predictable movements based on a
+    set of predefined rules. Additionally, we felt that play testing our game
+    helped us make better implementation decisions and customize user experience
+    to achieve a desired output in specific situations.
 
-   We believe that our test suite demonstrates the correctness of our systems
-   because every function listed within our mli files was tested. We used
-   property-based tests and checked if the correct outputs based on
-   specifications were returned to ensure that the functions listed modify the
-   game state properly. We also used the Bisect tool on our test suite to make
-   sure all our files have above 90% test coverage. We felt that this amount of
-   code coverage was enough for us to feel confident about our test suites,
-   since some cases that we didn't test are considered unreachable.*)
+    We believe that our test suite demonstrates the correctness of our systems
+    because every function listed within our mli files was tested. We used
+    property-based tests and checked if the correct outputs based on
+    specifications were returned to ensure that the functions listed modify the
+    game state properly. We also used the Bisect tool on our test suite to make
+    sure all our files have above 90% test coverage. We felt that this amount of
+    code coverage was enough for us to feel confident about our test suites,
+    since some cases that we didn't test are considered unreachable. *)
 
 open OUnit2
 open Game
 open Board
 open Action
 open State
+open Yojson.Basic.Util
 
 (*************************************************************************)
 (* PRINTERS AND HELPERS *)
@@ -95,29 +96,66 @@ let state_of_result r =
     are equivalent lists of pairs, regardless of order *)
 let cmp_pair_lists lst1 lst2 = List.for_all (fun a -> List.mem a lst2) lst1
 
+(** [list_to_pair \[x; y\]] turns the list of coordinates into a pair of
+    coordinates*)
+let list_to_pair = function
+  | [ x; y ] -> (to_int x, to_int y)
+  | _ -> failwith "bad testing json"
+
+(** [yojson_list_to_tuple j] converts the coordinates from lists to tuples*)
+let yojson_list_to_tuple j =
+  let un_yojson = List.map to_list j in
+  List.map list_to_pair un_yojson
+
+type test_record = {
+  test : string;
+  number : int;
+  coords : (int * int) list;
+}
+
+(** [un_yojson_list j] turns the list of coords & number from yojson to OCaml*)
+let un_yojson_list j =
+  match j with
+  | test_name, data_yojson -> (
+      match to_assoc data_yojson with
+      | [ ("num", i); ("coords", c) ] ->
+          let coords = yojson_list_to_tuple (to_list c) in
+          { test = test_name; number = to_int i; coords }
+      | _ -> failwith "bad testing json")
+
 (*************************************************************************)
 (* UNIT TEST FUNCTIONS *)
 (*************************************************************************)
 
+let init_marble_test_records =
+  Yojson.Basic.from_file "./data/test_init.json"
+  |> to_assoc |> List.map un_yojson_list
+
+let init_empty_holes_records =
+  Yojson.Basic.from_file "./data/test_empty.json"
+  |> to_assoc |> List.map un_yojson_list
+
 (** [init_marbles_test name p expected_output] constructs a OUnit test named
     [name] that asserts the equality of [expected_output] with
     [holes_with_marbles] for a board with p players. *)
-let init_marbles_test (name : string) (p : int)
-    (expected_output : (int * int) list) =
-  name >:: fun _ ->
-  assert_equal expected_output ~cmp:cmp_pair_lists
-    (holes_with_marbles (init_board p))
-    ~printer:string_of_int_pair_list
+let init_marbles_test test_record =
+  match test_record with
+  | { test; number; coords } ->
+      test >:: fun _ ->
+      assert_equal coords ~cmp:cmp_pair_lists
+        (holes_with_marbles (init_board number))
+        ~printer:string_of_int_pair_list
 
 (** [init_empty_holes_test name p expected_output] constructs a OUnit test named
     [name] that asserts the equality of [expected_output] with [empty_holes] for
     a board with p players. *)
-let init_empty_holes_test (name : string) (p : int)
-    (expected_output : (int * int) list) =
-  name >:: fun _ ->
-  assert_equal expected_output ~cmp:cmp_pair_lists
-    (empty_holes (init_board p))
-    ~printer:string_of_int_pair_list
+let init_empty_holes_test test_record =
+  match test_record with
+  | { test; number; coords } ->
+      test >:: fun _ ->
+      assert_equal coords ~cmp:cmp_pair_lists
+        (empty_holes (init_board number))
+        ~printer:string_of_int_pair_list
 
 (** [marble_in_hole_test name coord players expected_output] constructs a OUnit
     test named [name] that asserts the equality of [expected_output] with
@@ -206,192 +244,10 @@ let marble_after_move_test (name : string) (st : State.t) (coord : int * int)
 (*************************************************************************)
 
 let init_marble_tests =
-  [
-    init_marbles_test "one player, explicit" 1
-      [
-        (13, 17);
-        (12, 16);
-        (14, 16);
-        (11, 15);
-        (13, 15);
-        (15, 15);
-        (10, 14);
-        (12, 14);
-        (14, 14);
-        (16, 14);
-      ];
-    init_marbles_test "three players, explicit" 3
-      [
-        (13, 17);
-        (12, 16);
-        (14, 16);
-        (11, 15);
-        (13, 15);
-        (15, 15);
-        (10, 14);
-        (12, 14);
-        (14, 14);
-        (16, 14);
-        (13, 1);
-        (12, 2);
-        (14, 2);
-        (11, 3);
-        (13, 3);
-        (15, 3);
-        (10, 4);
-        (12, 4);
-        (14, 4);
-        (16, 4);
-        (1, 5);
-        (3, 5);
-        (5, 5);
-        (7, 5);
-        (2, 6);
-        (4, 6);
-        (6, 6);
-        (3, 7);
-        (5, 7);
-        (4, 8);
-      ];
-    init_empty_holes_test "6 players empty holes => center" 6
-      [
-        (9, 5);
-        (11, 5);
-        (13, 5);
-        (15, 5);
-        (17, 5);
-        (8, 6);
-        (10, 6);
-        (12, 6);
-        (14, 6);
-        (16, 6);
-        (18, 6);
-        (7, 7);
-        (9, 7);
-        (11, 7);
-        (13, 7);
-        (15, 7);
-        (17, 7);
-        (19, 7);
-        (6, 8);
-        (8, 8);
-        (10, 8);
-        (12, 8);
-        (14, 8);
-        (16, 8);
-        (18, 8);
-        (20, 8);
-        (5, 9);
-        (7, 9);
-        (9, 9);
-        (11, 9);
-        (13, 9);
-        (15, 9);
-        (17, 9);
-        (19, 9);
-        (21, 9);
-        (6, 10);
-        (8, 10);
-        (10, 10);
-        (12, 10);
-        (14, 10);
-        (16, 10);
-        (18, 10);
-        (20, 10);
-        (7, 11);
-        (9, 11);
-        (11, 11);
-        (13, 11);
-        (15, 11);
-        (17, 11);
-        (19, 11);
-        (8, 12);
-        (10, 12);
-        (12, 12);
-        (14, 12);
-        (16, 12);
-        (18, 12);
-        (9, 13);
-        (11, 13);
-        (13, 13);
-        (15, 13);
-        (17, 13);
-      ];
-    init_empty_holes_test "5 players empty holes => center and green" 5
-      [
-        (9, 5);
-        (11, 5);
-        (13, 5);
-        (15, 5);
-        (17, 5);
-        (8, 6);
-        (10, 6);
-        (12, 6);
-        (14, 6);
-        (16, 6);
-        (18, 6);
-        (7, 7);
-        (9, 7);
-        (11, 7);
-        (13, 7);
-        (15, 7);
-        (17, 7);
-        (19, 7);
-        (6, 8);
-        (8, 8);
-        (10, 8);
-        (12, 8);
-        (14, 8);
-        (16, 8);
-        (18, 8);
-        (20, 8);
-        (5, 9);
-        (7, 9);
-        (9, 9);
-        (11, 9);
-        (13, 9);
-        (15, 9);
-        (17, 9);
-        (19, 9);
-        (21, 9);
-        (6, 10);
-        (8, 10);
-        (10, 10);
-        (12, 10);
-        (14, 10);
-        (16, 10);
-        (18, 10);
-        (20, 10);
-        (19, 5);
-        (21, 5);
-        (23, 5);
-        (25, 5);
-        (20, 6);
-        (22, 6);
-        (24, 6);
-        (21, 7);
-        (23, 7);
-        (22, 8);
-        (7, 11);
-        (9, 11);
-        (11, 11);
-        (13, 11);
-        (15, 11);
-        (17, 11);
-        (19, 11);
-        (8, 12);
-        (10, 12);
-        (12, 12);
-        (14, 12);
-        (16, 12);
-        (18, 12);
-        (9, 13);
-        (11, 13);
-        (13, 13);
-        (15, 13);
-        (17, 13);
-      ];
-  ]
+  List.map
+    (fun test_record -> init_marbles_test test_record)
+    init_marble_test_records
+  @ List.map (fun t -> init_empty_holes_test t) init_empty_holes_records
 
 let marble_in_hole_tests =
   [
@@ -549,6 +405,7 @@ let valid_move_tests =
       (Move (5, "LD"));
     parse_test "valid move action: move 5 right" "move 5 right" (Move (5, "R"));
     parse_test "valid move action: move 5 Right" "move 5 Right" (Move (5, "R"));
+    parse_test "valid move action: move 5 riGHt" "move 5 riGHt" (Move (5, "R"));
     parse_test "valid move action: move 5 right-up" "move 5 right-up"
       (Move (5, "RU"));
     parse_test "valid move action: move 5 rIgHt-Up" "move 5 rIgHt-Up"
@@ -589,11 +446,20 @@ let action_tests =
 (*************************************************************************)
 
 (* Defining some states to test board setup and movements *)
-let initial_state_2 = init_state (init_board 2) 2 [ 0; 0; 0; 0; 0; 0 ]
-let initial_state_3 = init_state (init_board 3) 3 [ 0; 0; 0; 0; 0; 0 ]
-let initial_state_4 = init_state (init_board 4) 4 [ 0; 0; 0; 0; 0; 0 ]
-let initial_state_5 = init_state (init_board 5) 5 [ 0; 0; 0; 0; 0; 0 ]
-let initial_state_6 = init_state (init_board 6) 6 [ 0; 0; 0; 0; 0; 0 ]
+let initial_state_2 = init_state (init_board 2) 2 [ 0; 0; 0; 0; 0; 0 ] true
+let initial_state_3 = init_state (init_board 3) 3 [ 0; 0; 0; 0; 0; 0 ] true
+let initial_state_4 = init_state (init_board 4) 4 [ 0; 0; 0; 0; 0; 0 ] true
+let initial_state_5 = init_state (init_board 5) 5 [ 0; 0; 0; 0; 0; 0 ] true
+let initial_state_6 = init_state (init_board 6) 6 [ 0; 0; 0; 0; 0; 0 ] true
+
+let initial_state_6_nohop =
+  init_state (init_board 6) 6 [ 0; 0; 0; 0; 0; 0 ] false
+
+let black_turn_nohop = end_turn initial_state_6_nohop
+let yellow_turn_nohop = end_turn black_turn_nohop
+let blue_turn_nohop = end_turn yellow_turn_nohop
+let white_turn_nohop = end_turn black_turn_nohop
+let green_turn_nohop = end_turn white_turn_nohop
 
 let current_board_tests =
   [
@@ -644,150 +510,237 @@ let invalid_marble_number_tests =
       (Illegal (white_turn, invalid_marble_msg));
     move_test "move: invalid marble number 0" 0 "L" white_turn
       (Illegal (white_turn, invalid_marble_msg));
-    move_test "move: invalid marble number 0" 150 "L" white_turn
+    move_test "move: invalid marble number 150" 150 "L" white_turn
       (Illegal (white_turn, invalid_marble_msg));
   ]
 
 let invalid_dest_msg =
   "You can't move off the board, into an occupied hole, or try to move to an \
-   adjacent hole after doing one or more hops over marbles; try again!"
+   adjacent hole after doing one or more hops over marbles. Try again!"
 
 let invalid_destination_slide_tests =
   [
-    move_test "move: invalid slide R to occupied destination" 7 "R"
-      initial_state_2
+    move_test "move: invalid slide R to occupied destination for red marble 7" 7
+      "R" initial_state_2
       (Illegal (initial_state_2, invalid_dest_msg));
-    move_test "move: invalid slide L to off-board destination" 7 "L"
-      initial_state_2
+    move_test "move: invalid slide L to off-board destination for red marble 7"
+      7 "L" initial_state_2
       (Illegal (initial_state_2, invalid_dest_msg));
-    move_test "move: invalid slide LU to off-board destination" 1 "LU"
-      black_turn
+    move_test
+      "move: invalid slide LU to off-board destination for black marble 1" 1
+      "LU" black_turn
       (Illegal (black_turn, invalid_dest_msg));
-    move_test "move: invalid slide RU to off-board destination" 3 "RU"
-      black_turn
+    move_test
+      "move: invalid slide RU to off-board destination for black marble 3" 3
+      "RU" black_turn
       (Illegal (black_turn, invalid_dest_msg));
-    move_test "move: invalid slide LU to off-board destination" 2 "LU"
-      black_turn
+    move_test
+      "move: invalid slide LU to off-board destination for black marble 2" 2
+      "LU" black_turn
       (Illegal (black_turn, invalid_dest_msg));
-    move_test "move: invalid slide LU to off-board destination" 2 "LU"
-      yellow_turn
+    move_test
+      "move: invalid slide LU to off-board destination for black marble 2" 2
+      "LU" yellow_turn
       (Illegal (yellow_turn, invalid_dest_msg));
-    move_test "move: invalid slide LU to off-board destination" 1 "LU"
-      yellow_turn
+    move_test
+      "move: invalid slide LU to off-board destination for yellow marble 1" 1
+      "LU" yellow_turn
       (Illegal (yellow_turn, invalid_dest_msg));
-    move_test "move: invalid slide LU to off-board destination" 3 "LU"
-      yellow_turn
+    move_test
+      "move: invalid slide LU to off-board destination for yellow marble 3" 3
+      "LU" yellow_turn
       (Illegal (yellow_turn, invalid_dest_msg));
-    move_test "move: invalid slide LU to off-board destination" 4 "LU"
-      yellow_turn
+    move_test
+      "move: invalid slide LU to off-board destination for yellow marble 4" 4
+      "LU" yellow_turn
       (Illegal (yellow_turn, invalid_dest_msg));
-    move_test "move: invalid slide LD to off-board destination" 8 "LD"
-      yellow_turn
+    move_test
+      "move: invalid slide LD to off-board destination for yellow marble 8" 8
+      "LD" yellow_turn
       (Illegal (yellow_turn, invalid_dest_msg));
-    move_test "move: invalid slide LU to off-board destination" 9 "RU" blue_turn
-      (Illegal (blue_turn, invalid_dest_msg));
-    move_test "move: invalid slide LU to off-board destination" 10 "RU"
+    move_test
+      "move: invalid slide RU to off-board destination for blue marble 9" 9 "RU"
       blue_turn
       (Illegal (blue_turn, invalid_dest_msg));
-    move_test "move: invalid slide RD to off-board destination" 4 "RD" blue_turn
+    move_test
+      "move: invalid slide RU to off-board destination for blue marble 10" 10
+      "RU" blue_turn
       (Illegal (blue_turn, invalid_dest_msg));
-    move_test "move: invalid slide RD to off-board destination" 1 "RD" blue_turn
+    move_test
+      "move: invalid slide RD to off-board destination for blue marble 4" 4 "RD"
+      blue_turn
       (Illegal (blue_turn, invalid_dest_msg));
-    move_test "move: invalid slide LD to off-board destination" 2 "LD"
-      white_turn
+    move_test
+      "move: invalid slide RD to off-board destination for blue marble 1" 1 "RD"
+      blue_turn
+      (Illegal (blue_turn, invalid_dest_msg));
+    move_test
+      "move: invalid slide LD to off-board destination for white marble 2" 2
+      "LD" white_turn
       (Illegal (white_turn, invalid_dest_msg));
-    move_test "move: invalid slide LD to off-board destination" 4 "LD"
-      white_turn
+    move_test
+      "move: invalid slide LD to off-board destination for white marble 4" 4
+      "LD" white_turn
       (Illegal (white_turn, invalid_dest_msg));
-    move_test "move: invalid slide LU to off-board destination" 8 "LU"
-      white_turn
+    move_test
+      "move: invalid slide LU to off-board destination for white marble 8" 8
+      "LU" white_turn
       (Illegal (white_turn, invalid_dest_msg));
-    move_test "move: invalid slide LU to off-board destination" 5 "LU"
-      white_turn
+    move_test
+      "move: invalid slide LU to off-board destination for white marble 5" 5
+      "LU" white_turn
       (Illegal (white_turn, invalid_dest_msg));
-    move_test "move: invalid slide RU to off-board destination" 2 "RU"
-      green_turn
+    move_test
+      "move: invalid slide RU to off-board destination for green marble 2" 2
+      "RU" green_turn
       (Illegal (green_turn, invalid_dest_msg));
-    move_test "move: invalid slide RD to off-board destination" 7 "RD"
-      green_turn
+    move_test
+      "move: invalid slide RD to off-board destination for green marble 7" 7
+      "RD" green_turn
       (Illegal (green_turn, invalid_dest_msg));
   ]
 
 let invalid_destination_hop_tests =
   [
-    move_test "move: invalid hop RD to off-board destination" 5 "RD"
-      initial_state_2
+    move_test "move: invalid hop RD to off-board destination for red marble 5" 5
+      "RD" initial_state_2
       (Illegal (initial_state_2, invalid_dest_msg));
-    move_test "move: invalid hop LD to off-board destination" 5 "LD"
-      initial_state_2
+    move_test "move: invalid hop LD to off-board destination for red marble 5" 5
+      "LD" initial_state_2
       (Illegal (initial_state_2, invalid_dest_msg));
-    move_test "move: invalid hop RU to off-board destination" 5 "RU" black_turn
+    move_test "move: invalid hop RU to off-board destination for black marble 5"
+      5 "RU" black_turn
       (Illegal (black_turn, invalid_dest_msg));
-    move_test "move: invalid hop LU to off-board destination" 5 "LU" black_turn
+    move_test "move: invalid hop LU to off-board destination for black marble 5"
+      5 "LU" black_turn
       (Illegal (black_turn, invalid_dest_msg));
-    move_test "move: invalid hop LU to off-board destination" 8 "LU" black_turn
+    move_test "move: invalid hop LU to off-board destination for black marble 8"
+      8 "LU" black_turn
       (Illegal (black_turn, invalid_dest_msg));
-    move_test "move: invalid hop LU to off-board destination" 8 "RU" black_turn
+    move_test "move: invalid hop RU to off-board destination for black marble 8"
+      8 "RU" black_turn
       (Illegal (black_turn, invalid_dest_msg));
-    move_test "move: invalid hop LU to off-board destination" 9 "LU" black_turn
+    move_test "move: invalid hop LU to off-board destination for black marble 9"
+      9 "LU" black_turn
       (Illegal (black_turn, invalid_dest_msg));
-    move_test "move: invalid hop LU to off-board destination" 9 "RU" black_turn
+    move_test "move: invalid hop LU to off-board destination for black marble 9"
+      9 "RU" black_turn
       (Illegal (black_turn, invalid_dest_msg));
-    move_test "move: invalid hop LU to off-board destination" 6 "LU" yellow_turn
+    move_test
+      "move: invalid hop LU to off-board destination for yellow marble 6" 6 "LU"
+      yellow_turn
       (Illegal (yellow_turn, invalid_dest_msg));
-    move_test "move: invalid hop LU to off-board destination" 9 "LU" yellow_turn
+    move_test
+      "move: invalid hop LU to off-board destination for yellow marble 9" 9 "LU"
+      yellow_turn
       (Illegal (yellow_turn, invalid_dest_msg));
-    move_test "move: invalid hop LU to off-board destination" 7 "LU" yellow_turn
+    move_test
+      "move: invalid hop LU to off-board destination for yellow marble 7" 7 "LU"
+      yellow_turn
       (Illegal (yellow_turn, invalid_dest_msg));
-    move_test "move: invalid hop LU to off-board destination" 6 "LD" yellow_turn
+    move_test
+      "move: invalid hop LD to off-board destination for yellow marble 6" 6 "LD"
+      yellow_turn
       (Illegal (yellow_turn, invalid_dest_msg));
-    move_test "move: invalid hop LU to off-board destination" 7 "LD" yellow_turn
+    move_test
+      "move: invalid hop LD to off-board destination for yellow marble 7" 7 "LD"
+      yellow_turn
       (Illegal (yellow_turn, invalid_dest_msg));
-    move_test "move: invalid hop LU to off-board destination" 6 "RU" blue_turn
+    move_test "move: invalid hop RU to off-board destination for blue marble 6"
+      6 "RU" blue_turn
       (Illegal (blue_turn, invalid_dest_msg));
-    move_test "move: invalid hop LU to off-board destination" 6 "RD" blue_turn
+    move_test "move: invalid hop RD to off-board destination for blue marble 6"
+      6 "RD" blue_turn
       (Illegal (blue_turn, invalid_dest_msg));
-    move_test "move: invalid hop LU to off-board destination" 9 "RD" blue_turn
+    move_test "move: invalid hop RD to off-board destination for blue marble 9"
+      9 "RD" blue_turn
       (Illegal (blue_turn, invalid_dest_msg));
-    move_test "move: invalid hop LU to off-board destination" 10 "RD" blue_turn
+    move_test "move: invalid hop RD to off-board destination for blue marble 10"
+      10 "RD" blue_turn
       (Illegal (blue_turn, invalid_dest_msg));
-    move_test "move: invalid hop LU to off-board destination" 2 "RU" blue_turn
+    move_test "move: invalid hop RU to off-board destination for blue marble 2"
+      2 "RU" blue_turn
       (Illegal (blue_turn, invalid_dest_msg));
-    move_test "move: invalid hop LU to off-board destination" 1 "RU" blue_turn
+    move_test "move: invalid hop RU to off-board destination for blue marble 1"
+      1 "RU" blue_turn
       (Illegal (blue_turn, invalid_dest_msg));
-    move_test "move: invalid hop LU to off-board destination" 1 "RU" blue_turn
-      (Illegal (blue_turn, invalid_dest_msg));
-    move_test "move: invalid hop LU to off-board destination" 3 "LU" white_turn
+    move_test "move: invalid hop LU to off-board destination for white marble 3"
+      3 "LU" white_turn
       (Illegal (white_turn, invalid_dest_msg));
-    move_test "move: invalid hop LU to off-board destination" 4 "LU" white_turn
+    move_test "move: invalid hop LU to off-board destination for white marble 4"
+      4 "LU" white_turn
       (Illegal (white_turn, invalid_dest_msg));
-    move_test "move: invalid hop LU to off-board destination" 8 "RD" white_turn
+    move_test "move: invalid hop RD to off-board destination for white marble 8"
+      8 "RD" white_turn
       (Illegal (white_turn, invalid_dest_msg));
-    move_test "move: invalid hop LU to off-board destination" 10 "RD" white_turn
+    move_test
+      "move: invalid hop RD to off-board destination for white marble 10" 10
+      "RD" white_turn
       (Illegal (white_turn, invalid_dest_msg));
-    move_test "move: invalid hop LU to off-board destination" 6 "RD" white_turn
+    move_test "move: invalid hop RD to off-board destination for white marble 6"
+      6 "RD" white_turn
       (Illegal (white_turn, invalid_dest_msg));
-    move_test "move: invalid hop LU to off-board destination" 6 "LU" white_turn
+    move_test "move: invalid hop LU to off-board destination for white marble 6"
+      6 "LU" white_turn
       (Illegal (white_turn, invalid_dest_msg));
-    move_test "move: invalid hop LU to off-board destination" 8 "RU" green_turn
+    move_test "move: invalid hop RU to off-board destination for green marble 8"
+      8 "RU" green_turn
       (Illegal (green_turn, invalid_dest_msg));
-    move_test "move: invalid hop LU to off-board destination" 10 "RU" green_turn
+    move_test
+      "move: invalid hop RU to off-board destination for green marble 10" 10
+      "RU" green_turn
       (Illegal (green_turn, invalid_dest_msg));
-    move_test "move: invalid hop LU to off-board destination" 2 "RD" green_turn
+    move_test "move: invalid hop RD to off-board destination for green marble 2"
+      2 "RD" green_turn
       (Illegal (green_turn, invalid_dest_msg));
-    move_test "move: invalid hop LU to off-board destination" 6 "RD" green_turn
+    move_test "move: invalid hop RD to off-board destination for green marble 6"
+      6 "RD" green_turn
       (Illegal (green_turn, invalid_dest_msg));
   ]
 
-(* Can't move 2 marbles in 1 turn *)
+let invalid_multihop_msg =
+  "You can't move off the board, into an occupied hole, or try to move to an \
+   adjacent hole after doing one or more hops over marbles. In hard mode, you \
+   can only hop over one marble at a time, not over multiple marbles in a line \
+   at once. Try again!"
+
+let invalid_multihop_tests =
+  [
+    move_test "move: invalid multihop RU for red 2" 2 "RU" initial_state_6_nohop
+      (Illegal (initial_state_6_nohop, invalid_multihop_msg));
+    move_test "move: invalid multihop LU for red 1" 1 "LU" initial_state_6_nohop
+      (Illegal (initial_state_6_nohop, invalid_multihop_msg));
+    move_test "move: invalid multihop R for yellow 5" 5 "R" yellow_turn_nohop
+      (Illegal (yellow_turn_nohop, invalid_multihop_msg));
+    move_test "move: invalid mulithop L for green 4" 4 "L" green_turn_nohop
+      (Illegal (green_turn_nohop, invalid_multihop_msg));
+    move_test "move: invalid multihop RD for black 1" 1 "RD" black_turn_nohop
+      (Illegal (black_turn_nohop, invalid_multihop_msg));
+    move_test "move: Invalid multihop LD for black 1" 1 "LD" black_turn_nohop
+      (Illegal (black_turn_nohop, invalid_multihop_msg));
+  ]
+
+(* Can't move 2 marbles in 1 turn, moving marbles*)
 let invalid_2_marbles_msg = "You can only move one marble per turn!"
 let move_red4_RU = state_of_result (move 4 "RU" initial_state_2)
-(* let move_red7_after_4 = state_of_result (move 7 "LU" move_red4_RU) *)
+let move_black6_RD = state_of_result (move 6 "RD" black_turn)
+let move_yellow8_RD = state_of_result (move 8 "RD" yellow_turn)
+let move_blue9_LU = state_of_result (move 9 "LU" blue_turn)
+let move_white8_RU = state_of_result (move 8 "RU" white_turn)
+let move_green9_LD = state_of_result (move 9 "LD" green_turn)
 
 let invalid_slide_after_hop_test =
   [
     move_test "move: invalid slide after hop" 7 "LU" move_red4_RU
       (Illegal (move_red4_RU, invalid_2_marbles_msg));
+    move_test "move: invalid slide after hop" 7 "LU" move_black6_RD
+      (Illegal (move_black6_RD, invalid_2_marbles_msg));
+    move_test "move: invalid slide after hop" 7 "LU" move_yellow8_RD
+      (Illegal (move_yellow8_RD, invalid_2_marbles_msg));
+    move_test "move: invalid slide after hop" 7 "LU" move_blue9_LU
+      (Illegal (move_blue9_LU, invalid_2_marbles_msg));
+    move_test "move: invalid slide after hop" 8 "R" move_green9_LD
+      (Illegal (move_green9_LD, invalid_2_marbles_msg));
   ]
 
 let invalid_moves_tests =
@@ -797,6 +750,7 @@ let invalid_moves_tests =
       invalid_destination_slide_tests;
       invalid_destination_hop_tests;
       invalid_slide_after_hop_test;
+      invalid_multihop_tests;
     ]
 
 (* Slide moves *)
@@ -829,6 +783,8 @@ let valid_slide_moves_tests =
       (Some { color = "red"; number = 7 });
     marble_after_move_test "red 7 slides RD to (10,14)" move_red7_RD (10, 14)
       (Some { color = "red"; number = 7 });
+    marble_after_move_test "hole (10,14) is empty after red 7 slides"
+      slide_red7_RU (10, 14) None;
   ]
 
 (* Hop moves for red *)
@@ -889,20 +845,97 @@ let valid_red_hop_moves_tests =
 
 let hop_black1_RD = state_of_result (move 1 "RD" black_turn)
 let hop_black1_LD = state_of_result (move 1 "LD" black_turn)
+let slide_black7_LD = state_of_result (move 7 "LD" black_turn)
+let slide_black7_RD = state_of_result (move 7 "RD" black_turn)
 
-let valid_black_hop_moves_tests =
+let invalid_dir_msg =
+  "Choose a direction: L (left), R (right), LU (left-up), RU (right-up), LD \
+   (left-down), RD (right-down)."
+
+let black_moves_tests =
   [
     marble_after_move_test "black 1 hops RD to (17,5)" hop_black1_RD (17, 5)
       (Some { color = "black"; number = 1 });
     marble_after_move_test "black 1 hops LD to (9,5)" hop_black1_LD (9, 5)
       (Some { color = "black"; number = 1 });
+    marble_after_move_test "black 7 slides LD to (9,5)" slide_black7_LD (9, 5)
+      (Some { color = "black"; number = 7 });
+    marble_after_move_test "black 7 slides RD to (11,5)" slide_black7_RD (11, 5)
+      (Some { color = "black"; number = 7 });
+    move_test "move: invalid marble number 0" 0 "R" black_turn
+      (Illegal (black_turn, invalid_marble_msg));
+    move_test "move: can't move black 1 D" 1 "D" black_turn
+      (Illegal (black_turn, invalid_dir_msg));
+    move_test "move: can't hop black 3 LU" 3 "LU" black_turn
+      (Illegal (black_turn, invalid_dest_msg));
+    move_test "move: can't hop black 2 RU" 2 "RU" black_turn
+      (Illegal (black_turn, invalid_dest_msg));
   ]
 
-let valid_hop_moves_tests =
-  List.flatten [ valid_red_hop_moves_tests; valid_black_hop_moves_tests ]
+let hop_yellow1_R = state_of_result (move 1 "R" yellow_turn)
+let hop_yellow1_RD = state_of_result (move 1 "RD" yellow_turn)
+
+let yellow_moves_tests =
+  [
+    marble_after_move_test "yellow 1 hops R to (9,5)" hop_yellow1_R (9, 5)
+      (Some { color = "yellow"; number = 1 });
+    marble_after_move_test "yellow 1 hops RD to (5,9)" hop_yellow1_RD (5, 9)
+      (Some { color = "yellow"; number = 1 });
+  ]
+
+let hop_blue4_L = state_of_result (move 4 "L" blue_turn)
+let hop_blue4_LU = state_of_result (move 4 "LU" blue_turn)
+
+let blue_moves_tests =
+  [
+    marble_after_move_test "blue 4 hops L to (17,13)" hop_blue4_L (17, 13)
+      (Some { color = "blue"; number = 4 });
+    marble_after_move_test "blue 4 hops LU to (21,9)" hop_blue4_LU (21, 9)
+      (Some { color = "blue"; number = 4 });
+  ]
+
+let hop_white1_R = state_of_result (move 1 "R" white_turn)
+let hop_white1_RU = state_of_result (move 1 "RU" white_turn)
+
+let white_moves_tests =
+  [
+    marble_after_move_test "white 1 hops R to (9,13)" hop_white1_R (9, 13)
+      (Some { color = "white"; number = 1 });
+    marble_after_move_test "white 1 hops RU to (5,9)" hop_white1_RU (5, 9)
+      (Some { color = "white"; number = 1 });
+    move_test "move: can't move white 0 D" 0 "D" white_turn
+      (Illegal (white_turn, invalid_marble_msg));
+  ]
+
+let hop_green4_L = state_of_result (move 4 "L" green_turn)
+let hop_green4_LD = state_of_result (move 4 "LD" green_turn)
+
+let green_moves_tests =
+  [
+    marble_after_move_test "green 4 hops L to (17,5)" hop_green4_L (17, 5)
+      (Some { color = "green"; number = 4 });
+    marble_after_move_test "green 4 hops LD to (21,9)" hop_green4_LD (21, 9)
+      (Some { color = "green"; number = 4 });
+    move_test "move: can't move green 4 U" 4 "U" green_turn
+      (Illegal (green_turn, invalid_dir_msg));
+  ]
+
+let valid_hop_moves_tests = valid_red_hop_moves_tests
 
 let valid_moves_tests =
   List.flatten [ valid_slide_moves_tests; valid_hop_moves_tests ]
+
+let moves_tests =
+  List.flatten
+    [
+      valid_move_tests;
+      invalid_moves_tests;
+      black_moves_tests;
+      yellow_moves_tests;
+      blue_moves_tests;
+      white_moves_tests;
+      green_moves_tests;
+    ]
 
 let state_tests =
   List.flatten
@@ -911,184 +944,8 @@ let state_tests =
       current_player_tests;
       num_players_tests;
       last_marble_tests;
-      invalid_moves_tests;
-      valid_moves_tests;
+      moves_tests;
     ]
-
-let state_tests' =
-  let initial_state_2 = init_state (init_board 2) 2 [ 0; 0; 0; 0; 0; 0 ] in
-  let black_turn = end_turn initial_state_2 in
-  let yellow_turn =
-    end_turn (end_turn (init_state (init_board 6) 6 [ 0; 0; 0; 0; 0; 0 ]))
-  in
-  let blue_turn = end_turn yellow_turn in
-  let white_turn = end_turn blue_turn in
-  let green_turn = end_turn white_turn in
-  let move_red7_RU = state_of_result (move 7 "RU" initial_state_2) in
-  (* let move_red7_LU = state_of_result (move 7 "LU" initial_state_2) in *)
-  (* let move_red7_R = state_of_result (move 7 "R" initial_state_2) in *)
-  (* let move_red7_L = state_of_result (move 7 "L" initial_state_2) in *)
-  (* let move_red1_LU = state_of_result (move 1 "LU" initial_state_2) in *)
-  (* let move_red1_RD = state_of_result (move 1 "RD" move_red1_LU) in *)
-  (* let move_red1_RU = state_of_result (move 1 "RU" initial_state_2) in *)
-  (* let move_red1_LD = state_of_result (move 1 "LD" move_red1_RU) in *)
-  (* let move_red9_L = state_of_result (move 9 "L" (end_turn (state_of_result
-     (move 1 "LD" (end_turn move_red7_RU))))) in *)
-  (* let move_red9_R = state_of_result (move 9 "R" move_red9_L) in *)
-  (* let move_red0_RU = state_of_result (move 0 "RU" initial_state_2) in let
-     move_red11_RU = state_of_result (move 11 "RU" initial_state_2) in *)
-  (* let move_red4_RU = state_of_result (move 4 "RU" initial_state_2) in let
-     move_red7_after_4 = state_of_result (move 7 "LU" move_red4_RU) in *)
-  (* let move_red5_RD = state_of_result (move 5 "RD" initial_state_2) in *)
-  (* let move_red5_LD = state_of_result (move 5 "LD" initial_state_2) in *)
-  (* let move_black1_RD = state_of_result (move 1 "RD" black_turn) in *)
-  (* let move_black1_LD = state_of_result (move 1 "LD" black_turn) in *)
-  let move_black0_R = state_of_result (move 0 "R" black_turn) in
-  let move_black1_D = state_of_result (move 1 "D" black_turn) in
-  let move_black3_LU = state_of_result (move 3 "LU" black_turn) in
-  let move_black2_RU = state_of_result (move 2 "RU" black_turn) in
-  let move_black7_RD = state_of_result (move 7 "RD" black_turn) in
-  let move_black7_LD = state_of_result (move 7 "LD" black_turn) in
-  let move_yellow1_R = state_of_result (move 1 "R" yellow_turn) in
-  let move_yellow1_RD = state_of_result (move 1 "RD" yellow_turn) in
-  (* let move_yellow11_L = state_of_result (move 11 "L" yellow_turn) in *)
-  let move_blue4_L = state_of_result (move 4 "L" blue_turn) in
-  let move_blue4_LU = state_of_result (move 4 "LU" blue_turn) in
-  (* let move_blueneg1_L = state_of_result (move ~-1 "L" blue_turn) in *)
-  let move_white1_R = state_of_result (move 1 "R" white_turn) in
-  let move_white1_RU = state_of_result (move 1 "RU" white_turn) in
-  (* let move_white100_L = state_of_result (move 100 "L" white_turn) in *)
-  let move_white0_D = state_of_result (move 0 "D" white_turn) in
-  let move_green4_L = state_of_result (move 4 "L" green_turn) in
-  let move_green4_LD = state_of_result (move 4 "LD" green_turn) in
-  let move_green4_U = state_of_result (move 4 "U" green_turn) in
-
-  [
-    ( "2P initial current board" >:: fun _ ->
-      assert_equal
-        (string_of_board (init_board 2))
-        (string_of_board (current_board initial_state_2))
-        ~printer:Fun.id );
-    (*( "2P initial current player" >:: fun _ -> assert_equal "red"
-      (current_player initial_state_2) ); ( "2P initial number of players" >::
-      fun _ -> assert_equal 2 (num_players initial_state_2) );*)
-    (* ( "red7 now in (11,13)" >:: fun _ -> assert_equal (Some { color = "red";
-       number = 7 }) (marble_in_hole (current_board move_red7_RU) (11, 13))
-       ~printer:string_of_marble_option ); *)
-    (* ( "red7 now in (9,13)" >:: fun _ -> assert_equal (Some { color = "red";
-       number = 7 }) (marble_in_hole (current_board move_red7_LU) (9, 13))
-       ~printer:string_of_marble_option ); *)
-    (* ( "red1 now in (9,13) hopping LU" >:: fun _ -> assert_equal (Some { color
-       = "red"; number = 1 }) (marble_in_hole (current_board move_red1_LU) (9,
-       13)) ~printer:string_of_marble_option ); *)
-    (* ( "red1 now in (17,13) hopping RU" >:: fun _ -> assert_equal (Some {
-       color = "red"; number = 1 }) (marble_in_hole (current_board move_red1_RU)
-       (17, 13)) ~printer:string_of_marble_option ); *)
-    (* ( "red1 now in (13,17) hopping RD " >:: fun _ -> assert_equal (Some {
-       color = "red"; number = 1 }) (marble_in_hole (current_board move_red1_RD)
-       (13, 17)) ~printer:string_of_marble_option ); *)
-    (* ( "red1 now in (13,17) hopping LD " >:: fun _ -> assert_equal (Some {
-       color = "red"; number = 1 }) (marble_in_hole (current_board move_red1_LD)
-       (13, 17)) ~printer:string_of_marble_option ); *)
-    (* ( "red9 now in (10,14) hopping L" >:: fun _ -> assert_equal (Some { color
-       = "red"; number = 9 }) (marble_in_hole (current_board move_red9_L) (10,
-       14)) ~printer:string_of_marble_option ); *)
-    (* ( "red9 now in (14,14) hopping R" >:: fun _ -> assert_equal (Some { color
-       = "red"; number = 9 }) (marble_in_hole (current_board move_red9_R) (14,
-       14)) ~printer:string_of_marble_option ); *)
-    (* ( "black1 now in (17,5)" >:: fun _ -> assert_equal (Some { color =
-       "black"; number = 1 }) (marble_in_hole (current_board move_black1_RD)
-       (17, 5)) ~printer:string_of_marble_option ); *)
-    (* ( "black1 now in (9,5)" >:: fun _ -> assert_equal (Some { color =
-       "black"; number = 1 }) (marble_in_hole (current_board move_black1_LD) (9,
-       5)) ~printer:string_of_marble_option ); *)
-    ( "black7 now in (9,5)" >:: fun _ ->
-      assert_equal
-        (Some { color = "black"; number = 7 })
-        (marble_in_hole (current_board move_black7_LD) (9, 5))
-        ~printer:string_of_marble_option );
-    ( "black7 now in (11,5)" >:: fun _ ->
-      assert_equal
-        (Some { color = "black"; number = 7 })
-        (marble_in_hole (current_board move_black7_RD) (11, 5))
-        ~printer:string_of_marble_option );
-    ( "yellow1 now in (9,5)" >:: fun _ ->
-      assert_equal
-        (Some { color = "yellow"; number = 1 })
-        (marble_in_hole (current_board move_yellow1_R) (9, 5))
-        ~printer:string_of_marble_option );
-    ( "yellow1 now in (5,9)" >:: fun _ ->
-      assert_equal
-        (Some { color = "yellow"; number = 1 })
-        (marble_in_hole (current_board move_yellow1_RD) (5, 9))
-        ~printer:string_of_marble_option );
-    ( "blue4 now in (17,13)" >:: fun _ ->
-      assert_equal
-        (Some { color = "blue"; number = 4 })
-        (marble_in_hole (current_board move_blue4_L) (17, 13))
-        ~printer:string_of_marble_option );
-    ( "blue4 now in (21,9)" >:: fun _ ->
-      assert_equal
-        (Some { color = "blue"; number = 4 })
-        (marble_in_hole (current_board move_blue4_LU) (21, 9))
-        ~printer:string_of_marble_option );
-    ( "white1 now in (9,13)" >:: fun _ ->
-      assert_equal
-        (Some { color = "white"; number = 1 })
-        (marble_in_hole (current_board move_white1_R) (9, 13))
-        ~printer:string_of_marble_option );
-    ( "white1 now in (5,9)" >:: fun _ ->
-      assert_equal
-        (Some { color = "white"; number = 1 })
-        (marble_in_hole (current_board move_white1_RU) (5, 9))
-        ~printer:string_of_marble_option );
-    ( "green4 now in (17,5)" >:: fun _ ->
-      assert_equal
-        (Some { color = "green"; number = 4 })
-        (marble_in_hole (current_board move_green4_L) (17, 5))
-        ~printer:string_of_marble_option );
-    ( "green4 now in (21,9)" >:: fun _ ->
-      assert_equal
-        (Some { color = "green"; number = 4 })
-        (marble_in_hole (current_board move_green4_LD) (21, 9))
-        ~printer:string_of_marble_option );
-    ( "(10, 14) is empty" >:: fun _ ->
-      assert_equal None
-        (marble_in_hole (current_board move_red7_RU) (10, 14))
-        ~printer:string_of_marble_option );
-    (* ( "2P initial can't move red 7 R" >:: fun _ -> assert_equal
-       initial_state_2 move_red7_R ~printer:string_of_state ); *)
-    (* ( "2P initial can't move red 7 L" >:: fun _ -> assert_equal
-       initial_state_2 move_red7_L ~printer:string_of_state ); *)
-    (* ( "2P initial can't move red 0 RU" >:: fun _ -> assert_equal
-       initial_state_2 move_red0_RU ~printer:string_of_state ); ( "2P initial
-       can't move red 11 RU" >:: fun _ -> assert_equal initial_state_2
-       move_red11_RU ~printer:string_of_state ); *)
-    (* ( "2P initial can't hop red 5 RD" >:: fun _ -> assert_equal
-       initial_state_2 move_red5_RD ~printer:string_of_state ); *)
-    (* ( "2P initial can't hop red 5 LD" >:: fun _ -> assert_equal
-       initial_state_2 move_red5_LD ~printer:string_of_state ); *)
-    (* ( "2P initial can't move 2 marbles in 1 turn" >:: fun _ -> assert_equal
-       move_red4_RU move_red7_after_4 ~printer:string_of_state ); *)
-    ( "2P initial can't move black 0 R" >:: fun _ ->
-      assert_equal black_turn move_black0_R ~printer:string_of_state );
-    ( "2P initial can't move black 1 D" >:: fun _ ->
-      assert_equal black_turn move_black1_D ~printer:string_of_state );
-    ( "2P initial can't hop black 3 LU" >:: fun _ ->
-      assert_equal black_turn move_black3_LU ~printer:string_of_state );
-    ( "2P initial can't hop black 2 RU" >:: fun _ ->
-      assert_equal black_turn move_black2_RU ~printer:string_of_state );
-    (*( "2P initial can't move yellow 11 L" >:: fun _ -> assert_equal
-      yellow_turn move_yellow11_L ~printer:string_of_state );*)
-    (* ( "2P initial can't move blue -1 L" >:: fun _ -> assert_equal blue_turn
-       move_blueneg1_L ~printer:string_of_state ); *)
-    (* ( "2P initial can't move white 100 L" >:: fun _ -> assert_equal
-       white_turn move_white100_L ~printer:string_of_state ); *)
-    ( "2P initial can't move white 0 D" >:: fun _ ->
-      assert_equal white_turn move_white0_D ~printer:string_of_state );
-    ( "2P initial can't move green 4 U" >:: fun _ ->
-      assert_equal green_turn move_green4_U ~printer:string_of_state );
-  ]
 
 let suite =
   "test suite for final-project"

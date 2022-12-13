@@ -31,6 +31,7 @@ doc:
 	dune build @doc
 
 cloc:
+	dune clean
 	cloc --by-file --include-lang=OCaml .
 
 bisect: bisect-clean

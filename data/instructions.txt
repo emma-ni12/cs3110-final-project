@@ -7,7 +7,10 @@ your starting corner to the opposite corner.
 
 During each turn, you can move one marble to one adjacent hole or make one 
 or more hops over adjacent marbles. You can move as many times as desired 
-and valid, and then end your turn. At that point, the next player will go.
+and valid, and then end your turn. At that point, the next player will go. Our 
+game has two versions, easy and hard: hard mode only allows you to hop over one 
+adjacent marble with each move, while easy mode allows you to hop over multiple 
+marbles at once if they all lie along the direction specified.
 
 To move a marble, format your command like so: 'move [marble number] [direction]'
 

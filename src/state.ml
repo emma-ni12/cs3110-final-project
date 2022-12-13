@@ -8,6 +8,7 @@ type t = {
   last_marble : Board.m;
   last_player : string;
   scoreboard : int list;
+  multihop : bool;
 }
 
 type result =
@@ -42,7 +43,7 @@ let rec color_from_number players number =
 (** [wrap n] is the player number [n], wrapped between 1-6. *)
 let wrap p n = if n > p then 1 else n
 
-let init_state b p scrlst =
+let init_state b p scrlst hop =
   {
     board = b;
     num_players = p;
@@ -50,6 +51,7 @@ let init_state b p scrlst =
     last_marble = { color = "none"; number = -1 };
     last_player = "";
     scoreboard = scrlst;
+    multihop = hop;
   }
 
 let current_board st = st.board
@@ -58,6 +60,7 @@ let num_players st = st.num_players
 let last_marble st = st.last_marble
 let last_player st = st.last_player
 let scoreboard st = st.scoreboard
+let multihop st = st.multihop
 
 type hole_status =
   | Open
@@ -82,31 +85,53 @@ let rec valid_hop (x, y) (x', y') st =
 (** [hop (x,y) dir st] is the destination coordinate after attempting to move in
     direction [dir] from coordinate [(x,y)]. Requires: [dir] is a valid
     direction. *)
-let hop (x, y) (dir : string) (st : t) =
+let hop (x, y) (dir : string) (st : t) (multihop : bool) =
   match dir with
   | "L" -> (
       match valid_hop (x, y) (-2, 0) st with
-      | x', y' -> if x - 2 = x' && y = y' then (x, y) else (x', y')
+      | x', y' ->
+          if not multihop then if x - 4 = x' && y = y' then (x', y') else (x, y)
+          else if x - 2 = x' && y = y' then (x, y)
+          else (x', y')
       | exception BadCoord _ -> (x, y))
   | "R" -> (
       match valid_hop (x, y) (2, 0) st with
-      | x', y' -> if x + 2 = x' && y = y' then (x, y) else (x', y')
+      | x', y' ->
+          if not multihop then if x + 4 = x' && y = y' then (x', y') else (x, y)
+          else if x + 2 = x' && y = y' then (x, y)
+          else (x', y')
       | exception BadCoord _ -> (x, y))
   | "LU" -> (
       match valid_hop (x, y) (-1, -1) st with
-      | x', y' -> if x - 1 = x' && y - 1 = y' then (x, y) else (x', y')
+      | x', y' ->
+          if not multihop then
+            if x - 2 = x' && y - 2 = y' then (x', y') else (x, y)
+          else if x - 1 = x' && y - 1 = y' then (x, y)
+          else (x', y')
       | exception BadCoord _ -> (x, y))
   | "RU" -> (
       match valid_hop (x, y) (1, -1) st with
-      | x', y' -> if x + 1 = x' && y - 1 = y' then (x, y) else (x', y')
+      | x', y' ->
+          if not multihop then
+            if x + 2 = x' && y - 2 = y' then (x', y') else (x, y)
+          else if x + 1 = x' && y - 1 = y' then (x, y)
+          else (x', y')
       | exception BadCoord _ -> (x, y))
   | "LD" -> (
       match valid_hop (x, y) (-1, 1) st with
-      | x', y' -> if x - 1 = x' && y + 1 = y' then (x, y) else (x', y')
+      | x', y' ->
+          if not multihop then
+            if x - 2 = x' && y + 2 = y' then (x', y') else (x, y)
+          else if x - 1 = x' && y + 1 = y' then (x, y)
+          else (x', y')
       | exception BadCoord _ -> (x, y))
   | "RD" -> (
       match valid_hop (x, y) (1, 1) st with
-      | x', y' -> if x + 1 = x' && y + 1 = y' then (x, y) else (x', y')
+      | x', y' ->
+          if not multihop then
+            if x + 2 = x' && y + 2 = y' then (x', y') else (x, y)
+          else if x + 1 = x' && y + 1 = y' then (x, y)
+          else (x', y')
       | exception BadCoord _ -> (x, y))
   | _ -> (x, y)
 
@@ -160,9 +185,11 @@ let calculate_move (m : int) (dir : string) (st : t) =
     if
       { color = st.current_player; number = m } = st.last_marble
       && st.current_player = st.last_player
-    then hop coord dir st (* if a player has already moved, they can only hop*)
+    then
+      hop coord dir st
+        st.multihop (* if a player has already moved, they can only hop*)
     else
-      match hop coord dir st with
+      match hop coord dir st st.multihop with
       | x, y -> if (x, y) = coord then slide coord dir st else (x, y)
     (* if a player has not moved yet, they can hop or slide*)
   in
@@ -185,11 +212,16 @@ let calculate_move (m : int) (dir : string) (st : t) =
       let game_won = win_condition_met final_st in
       Legal (final_st, auto_end, game_won)
   | false ->
+      let single_hop_msg =
+        "In hard mode, you can only hop over one marble at a time, not over \
+         multiple marbles in a line at once. "
+      in
       Illegal
         ( st,
           "You can't move off the board, into an occupied hole, or try to move \
-           to an adjacent hole after doing one or more hops over marbles; try \
-           again!" )
+           to an adjacent hole after doing one or more hops over marbles. "
+          ^ (if not st.multihop then single_hop_msg else "")
+          ^ "Try again!" )
 
 let move (m : int) (dir : string) (st : t) =
   if m < 1 || m > 10 then Illegal (st, "Pick a marble between 1 and 10!")

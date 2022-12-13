@@ -90,6 +90,7 @@ let rec play_again st =
                   (init_board (num_players st))
                   (num_players st)
                   [ red + 1; black; yellow; blue; white; green ]
+                  (multihop st)
               in
               run_game "" new_st
           | "black" ->
@@ -98,6 +99,7 @@ let rec play_again st =
                   (init_board (num_players st))
                   (num_players st)
                   [ red; black + 1; yellow; blue; white; green ]
+                  (multihop st)
               in
               run_game "" new_st
           | "yellow" ->
@@ -106,6 +108,7 @@ let rec play_again st =
                   (init_board (num_players st))
                   (num_players st)
                   [ red; black; yellow + 1; blue; white; green ]
+                  (multihop st)
               in
               run_game "" new_st
           | "blue" ->
@@ -114,6 +117,7 @@ let rec play_again st =
                   (init_board (num_players st))
                   (num_players st)
                   [ red; black; yellow; blue + 1; white; green ]
+                  (multihop st)
               in
               run_game "" new_st
           | "white" ->
@@ -122,6 +126,7 @@ let rec play_again st =
                   (init_board (num_players st))
                   (num_players st)
                   [ red; black; yellow; blue; white + 1; green ]
+                  (multihop st)
               in
               run_game "" new_st
           | "green" ->
@@ -130,6 +135,7 @@ let rec play_again st =
                   (init_board (num_players st))
                   (num_players st)
                   [ red; black; yellow; blue; white; green + 1 ]
+                  (multihop st)
               in
               run_game "" new_st
           | _ -> failwith "impossible to have this player color")
@@ -188,25 +194,39 @@ and run_game (message : string) st =
 
     [invalid_players message] prints [message] to the terminal if the player
     doesn't enter a valid input for the number of players. *)
-let rec play_game input =
+let rec play_game input hop_rule =
   try
     let p = int_of_string input in
     if p <= 1 || p > 6 then
       invalid_players
         "\nInvalid number of players. Please enter a number between 2 and 6!"
+        hop_rule
     else
-      let st = init_state (init_board p) p [ 0; 0; 0; 0; 0; 0 ] in
+      let st = init_state (init_board p) p [ 0; 0; 0; 0; 0; 0 ] hop_rule in
       run_game "" st
   with Failure s ->
     invalid_players
-      "\nSorry, that's not a number between 2 and 6. Please try again!"
+      "\nSorry, that's not a number between 2 and 6. Please try again!" hop_rule
 
-and invalid_players message =
+and invalid_players message hop_rule =
   print_endline message;
   print_string "> ";
-  play_game (read_line ())
+  play_game (read_line ()) hop_rule
 
 let data_dir_prefix = "data" ^ Filename.dir_sep
+
+let rec print_hop_rule () =
+  print_endline
+    "\n\
+     Play in easy mode (allows hopping over multiple marbles in a line) or \
+     hard mode (only hop over a single marble at a time)? easy/hard: ";
+  print_string "> ";
+  match read_line () with
+  | "easy" -> true
+  | "hard" -> false
+  | _ ->
+      print_endline "Please type either \"easy\" or \"hard\".";
+      print_hop_rule ()
 
 (** [print_from_file filename] prints the contents of [filename] to the
     terminal.
@@ -225,11 +245,12 @@ let main () =
   ANSITerminal.print_string [ ANSITerminal.red ]
     "\n\nWelcome to Chinese Caml 🐫 Checkers.\n";
   print_from_file "./data/instructions.txt";
+  let hop_rule = print_hop_rule () in
   print_endline "\nPlease enter the number of players in the game. \n";
   print_string "> ";
   match read_line () with
   | exception End_of_file -> ()
-  | players -> play_game players
+  | players -> play_game players hop_rule
 
 (* Execute the game engine. *)
 let () = main ()

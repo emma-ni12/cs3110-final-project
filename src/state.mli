@@ -10,10 +10,12 @@ type t
 exception BadPlayer
 (** Raised when an number is not between 1 to 6 or when the color is not valid. *)
 
-val init_state : Board.t -> int -> int list -> t
-(** [init_state b p] is the initial state of the game with an initial board [b]
-    for [p] players. The current turn is assigned to the player number 1, red.
-    Requires: [p] is between 1 and 6, inclusive. *)
+val init_state : Board.t -> int -> int list -> bool -> t
+(** [init_state b p lst hop] is the initial state of the game with an initial
+    board [b] for [p] players, with starting scores for 6 players stored in
+    [lst], and multi-marble hopping disabled if [hop] is false. The current turn
+    is assigned to the player number 1, red. Requires: [p] is between 2 and 6,
+    inclusive. *)
 
 val current_board : t -> Board.t
 (** [current_board st] is the board of the current state [st].*)
@@ -36,6 +38,10 @@ val last_player : t -> string
 
 val scoreboard : t -> int list
 (** [scoreboard st] is the set of current scores for each player in state [st].*)
+
+val multihop : t -> bool
+(** [multihop st] is the rule condition allowing or disallowing hopping over
+    multiple marbles in one move.*)
 
 (** The type representing the result of an attempted movement. [Illegal] carries
     the state of the board with no changes made and an message regarding the
