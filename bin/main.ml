@@ -218,8 +218,8 @@ let data_dir_prefix = "data" ^ Filename.dir_sep
 let rec print_hop_rule () =
   print_endline
     "\n\
-     Play in easy mode (allows hopping over multiple marbles in a line) or \
-     hard mode (only hop over a single marble at a time)? easy/hard: ";
+     Play in easy mode (allows hopping over multiple marbles in a line) or \n\n\
+    \     hard mode (only hop over a single marble at a time)? easy/hard: ";
   print_string "> ";
   match read_line () with
   | "easy" -> true
