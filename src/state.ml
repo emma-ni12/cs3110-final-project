@@ -218,8 +218,8 @@ let calculate_move (m : int) (dir : string) (st : t) =
       in
       Illegal
         ( st,
-          "You can't move off the board, into an occupied hole, or try to move \
-           to an adjacent hole after doing one or more hops over marbles. "
+          "You can't move off the board, into an occupied hole, or to an \
+           adjacent hole after doing one or more hops over marbles. "
           ^ (if not st.multihop then single_hop_msg else "")
           ^ "Try again!" )
 
